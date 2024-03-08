@@ -90,11 +90,11 @@ namespace MusicalPlayer
             // Start the timer
             durationTimer.Start();
 
-            // Set the value for the volume label
-            VolumeLabel.Content = $"{Config.LastVolume}%";
-
             // Set the value for the volume slider
             VolumeSlider.Value = Config.LastVolume;
+
+            // Set the value for the volume label
+            VolumeLabel.Content = $"{Config.LastVolume}%";
 
             // Restore the previous playlist
             PlaylistsList.SelectedIndex = Config.LastPlaylist;
@@ -126,9 +126,14 @@ namespace MusicalPlayer
 
             // Add each supported audio file to the selected playlist
             files.Where(FileManager.IsSupportedAudioFormat).ToList().ForEach(file => FileManager.AddSong(file, PlaylistsList.SelectedItem.ToString()));
+            
+            var currentIndex = PlaylistsList.SelectedIndex;
+            UpdatePlaylistList();
+            PlaylistsList.SelectedIndex = currentIndex;
 
             // Update the song list in the interface
             UpdateSongList();
+
         }
 
         /// <summary>
@@ -204,7 +209,7 @@ namespace MusicalPlayer
             try
             {
                 // Delete the selected playlist
-                FileManager.DeletePlaylist(PlaylistsList.SelectedIndex);
+                FileManager.DeletePlaylist(PlaylistsList.SelectedItem.ToString());
 
                 isSongChoosed = false;
                 isPlaylistChoosed = false;
@@ -230,13 +235,17 @@ namespace MusicalPlayer
             try
             {
                 var currentIndex = SongList.SelectedIndex;
+                var currentPlaylistIndex = PlaylistsList.SelectedIndex;
                 if (currentIndex - 1 < 0) { return; }
+
                 // Move the song up in the queue
-                FileManager.MoveSongInQueue(SongList.SelectedIndex, PlaylistsList.SelectedIndex, Enums.MoveDirections.Up);
+                FileManager.MoveSongInQueue(currentIndex, PlaylistsList.SelectedItem.ToString(), Enums.MoveDirections.Up);
 
+                // Update the playlist list
+                UpdatePlaylistList();
+                PlaylistsList.SelectedIndex = currentPlaylistIndex;
                 // Update the song list
-                UpdateSongList();
-
+                UpdateSongList();  
                 SongList.SelectedIndex = currentIndex - 1;
             }
             catch { }
@@ -255,13 +264,16 @@ namespace MusicalPlayer
             try
             {
                 var currentIndex = SongList.SelectedIndex;
+                var currentPlaylistIndex = PlaylistsList.SelectedIndex;
                 if (currentIndex + 1 >= SongList.Items.Count) { return; }
                 // Move the song down in the queue
-                FileManager.MoveSongInQueue(currentIndex, PlaylistsList.SelectedIndex, Enums.MoveDirections.Down);
+                FileManager.MoveSongInQueue(currentIndex, PlaylistsList.SelectedItem.ToString(), Enums.MoveDirections.Down);
 
+                // Update the playlist list
+                UpdatePlaylistList();
+                PlaylistsList.SelectedIndex = currentPlaylistIndex;
                 // Update the song list
                 UpdateSongList();
-
                 SongList.SelectedIndex = currentIndex + 1;
             }
             catch { }
@@ -279,11 +291,14 @@ namespace MusicalPlayer
 
             try
             {
+                var currentIndex = PlaylistsList.SelectedIndex;
                 // Add a song to the playlist
-                FileManager.AddSongToPlaylist(PlaylistsList.SelectedIndex);
+                FileManager.AddSongToPlaylist(PlaylistsList.SelectedItem.ToString());
 
                 // Update the song list
                 UpdateSongList();
+                UpdatePlaylistList();
+                PlaylistsList.SelectedIndex = currentIndex;
             }
             catch (Exception ex)
             {
@@ -305,8 +320,12 @@ namespace MusicalPlayer
             try
             {
                 var currentIndex = SongList.SelectedIndex;
+                var currentPlaylistIndex = PlaylistsList.SelectedIndex;
                 // Delete the selected song from the playlist
-                FileManager.DeleteSong(PlaylistsList.SelectedIndex, currentIndex);
+                FileManager.DeleteSong(PlaylistsList.SelectedItem.ToString(), currentIndex);
+
+                UpdatePlaylistList();
+                PlaylistsList.SelectedIndex = currentPlaylistIndex;
 
                 // Update the song list
                 UpdateSongList();
@@ -416,7 +435,6 @@ namespace MusicalPlayer
             }
             catch { }
         }
-
 
         /// <summary>
         /// Mouse click handler for the play previous song button
@@ -567,7 +585,11 @@ namespace MusicalPlayer
             Player.CurrentSong.CurrentTime = TimeSpan.FromSeconds(DurationSlider.Value);
         }
 
-        // Event handler for the duration slider value change
+        /// <summary>
+        /// Event handler for the duration slider value change
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DurationBarSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             // Check for the end of the song to avoid starting a new one while the old one is playing
@@ -643,7 +665,10 @@ namespace MusicalPlayer
             if (!isPlaylistChoosed) { return; }
 
             // Shuffle the playlist
-            PlayerLogic.ShufflePlaylist(PlaylistsList.SelectedIndex);
+            PlayerLogic.ShufflePlaylist(PlaylistsList.SelectedItem.ToString());
+            int choosedPlaylist = PlaylistsList.SelectedIndex;
+            UpdatePlaylistList();
+            PlaylistsList.SelectedIndex = choosedPlaylist;
 
             // Update the song list
             UpdateSongList();
@@ -778,7 +803,8 @@ namespace MusicalPlayer
         /// </summary>
         private void UpdateSongList()
         {
-            SongList.ItemsSource = PlayerLogic.GetAllSongs(PlaylistsList.SelectedIndex);
+            SongList.ItemsSource = null;
+            SongList.ItemsSource = PlayerLogic.GetAllSongs(PlaylistsList.SelectedItem.ToString());
         }
 
         /// <summary>
@@ -786,6 +812,7 @@ namespace MusicalPlayer
         /// </summary>
         private void UpdatePlaylistList()
         {
+            PlaylistsList.ItemsSource = null;
             PlaylistsList.ItemsSource = FileManager.GetPlaylists();
         }
 

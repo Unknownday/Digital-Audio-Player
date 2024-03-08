@@ -1,4 +1,5 @@
 ﻿using Musical_Player.Global;
+using Musical_Player.Models;
 using Musical_Player.Views;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Linq;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using Path = System.IO.Path;
@@ -49,33 +52,29 @@ namespace Musical_Player.Files_management
             // Open a dialog to get the playlist name from the user
             var nameDialog = new NameDialog();
             bool? dialogResult = nameDialog.ShowDialog();
-
             // If the user confirms the dialog, proceed to create the playlist
             if (dialogResult == true)
             {
-                // Default playlist name
-                string playlistName = "New Playlist";
 
                 // Use the user-entered name if available, otherwise use the default name
-                playlistName = nameDialog.InputTextbox.Text == null ? "New Playlist" : nameDialog.InputTextbox.Text + ".playlist";
+                var playlistName = nameDialog.InputTextbox.Text;
 
-                // Check if a playlist with the same name already exists
-                if (File.Exists(Path.Combine(Config.DefaultPath, playlistName)))
+                XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
+                if (xDocument.Root.Elements("playlist").Any(element => element.Attribute("name").Value == playlistName))
                 {
-                    MessageBox.Show("A playlist with this name already exists! Please choose another.", "Music Player");
-                    return;
+                    MessageBox.Show("Playlist with the same name is already exists!");
                 }
-
-                // Create an empty playlist file
-                File.Create(Path.Combine(Config.DefaultPath, playlistName)).Close();
+                XElement newPlaylistElement = new XElement("playlist", new XAttribute("name", playlistName));
+                xDocument.Root.Add(newPlaylistElement);
+                xDocument.Save(Path.Combine(Config.DefaultPath, "Playlists.xml"));
             }
         }
 
         /// <summary>
         /// Adds a new song to the playlist
         /// </summary>
-        /// <param name="playlistIndex">Playlist index</param>
-        public static void AddSongToPlaylist(int playlistIndex)
+        /// <param name="playlistName">Playlist name</param>
+        public static void AddSongToPlaylist(string playlistName)
         {
             // Open a dialog to choose songs
             OpenFileDialog opnFileDlg = new OpenFileDialog();
@@ -85,69 +84,118 @@ namespace Musical_Player.Files_management
             // If files are selected, add their paths to the playlist file
             if (opnFileDlg.ShowDialog() == true)
             {
-                foreach (string fileName in opnFileDlg.FileNames)
+                XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
+
+                XElement playlistElement = xDocument.Root.Elements("playlist").FirstOrDefault(element => element.Attribute("name").Value == playlistName);
+
+                foreach (string filePath in opnFileDlg.FileNames)
                 {
-                    File.AppendAllText(Config.PlaylistPaths[playlistIndex], fileName + "\n");
+                    SongModel newSong = new SongModel()
+                    {
+                        Name = Path.GetFileName(filePath),
+                        Path = filePath,
+                        Id = playlistElement.Elements().Count()
+                    };
+
+                    if (!playlistElement.Elements("song").Any(element => element.Attribute("id").Value == newSong.Id.ToString()))
+                    {
+                        XElement newSongElement = new XElement("song",
+                        new XAttribute("id", newSong.Id),
+                        new XAttribute("name", newSong.Name),
+                        new XAttribute("path", newSong.Path));
+
+                        playlistElement.Add(newSongElement);
+                    }
                 }
+                xDocument.Save(Path.Combine(Config.DefaultPath, "Playlists.xml"));
             }
         }
 
-        /// <summary>
+        //// <summary>
         /// Deletes a song from the playlist
         /// </summary>
-        /// <param name="playlistIndex">Playlist index</param>
-        /// <param name="songIndex">Song index in the list</param>
-        public static void DeleteSong(int playlistIndex, int songIndex)
+        /// <param name="playlistName">Playlist name</param>
+        /// <param name="songIndex">Song name</param>
+        public static void DeleteSong(string playlistName, int songIndex)
         {
-            // Read the current playlist
-            var currentPlaylist = File.ReadAllLines(Config.PlaylistPaths[playlistIndex]);
+            XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
 
-            // Create a new playlist excluding the specified song
-            var newPlaylist = currentPlaylist.Where((x, index) => index != songIndex).ToList();
+            XElement playlistElement = xDocument.Root.Elements("playlist")
+                .FirstOrDefault(element => element.Attribute("name").Value == playlistName);
 
-            // Write the new playlist back to the file
-            File.WriteAllLines(Config.PlaylistPaths[playlistIndex], newPlaylist);
+            if (playlistElement != null)
+            {
+                XElement songElement = playlistElement.Elements("song")
+                    .FirstOrDefault(element => element.Attribute("id").Value == songIndex.ToString());
+
+                songElement?.Remove();
+
+                int newIndex = 0;
+                foreach (XElement remainingSong in playlistElement.Elements("song"))
+                {
+                    remainingSong.Attribute("id").Value = newIndex.ToString();
+                    newIndex++;
+                }
+            }
+
+            xDocument.Save(Path.Combine(Config.DefaultPath, "Playlists.xml"));
         }
 
         /// <summary>
         /// Deletes a playlist
         /// </summary>
-        /// <param name="playlistIndex">Playlist index</param>
-        public static void DeletePlaylist(int playlistIndex)
+        /// <param name="playlistName">Playlist index</param>
+        public static void DeletePlaylist(string playlistName)
         {
-            // Delete the playlist file
-            File.Delete(Config.PlaylistPaths[playlistIndex]);
+            XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
+
+            XElement playlistElement = xDocument.Root.Elements("playlist")
+                .FirstOrDefault(element => element.Attribute("name").Value == playlistName);
+
+            playlistElement.Remove();
+
+            xDocument.Save(Path.Combine(Config.DefaultPath, "Playlists.xml"));
         }
 
         /// <summary>
         /// Moves a song up or down in the playlist
         /// </summary>
         /// <param name="songIndex">Song index in the list</param>
-        /// <param name="playlistIndex">Playlist index</param>
+        /// <param name="playlistName">Playlist index</param>
         /// <param name="direction">Move direction (down = 0, up = 1)</param>
-        public static void MoveSongInQueue(int songIndex, int playlistIndex, Enums.MoveDirections direction)
+        public static void MoveSongInQueue(int songIndex, string playlistName, Enums.MoveDirections direction)
         {
             try
             {
-                // Read the current playlist
-                var currentPlaylist = File.ReadAllLines(Config.PlaylistPaths[playlistIndex]);
-
                 // Calculate the new index based on the specified direction
                 int newIndex = direction == Enums.MoveDirections.Down ? songIndex + 1 : songIndex - 1;
+                XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
+
+                XElement playlistElement = xDocument.Root.Elements("playlist").FirstOrDefault(element => element.Attribute("name").Value == playlistName);
 
                 // Check if the new index is within valid bounds
-                if (newIndex >= 0 && newIndex < currentPlaylist.Length)
+                if (newIndex >= 0 && newIndex < playlistElement.Elements("song").Count())
                 {
-                    // Swap the current song with the one at the new index
-                    Swap(currentPlaylist, songIndex, newIndex);
+                    if (playlistElement != null)
+                    {
+                        XElement songElement = playlistElement.Elements("song").FirstOrDefault(element => element.Attribute("id").Value == songIndex.ToString());
 
-                    // Write the modified playlist back to the file
-                    File.WriteAllLines(Config.PlaylistPaths[playlistIndex], currentPlaylist);
-                }
-                else
-                {
-                    // Display an error message for an invalid move operation
-                    Console.WriteLine("Invalid song move operation.");
+                        if (songElement != null)
+                        {
+
+                            XElement nextSongElement = playlistElement.Elements("song").FirstOrDefault(element => element.Attribute("id").Value == newIndex.ToString());
+
+                            if (nextSongElement != null)
+                            {
+                                songElement.Attribute("id").Value = newIndex.ToString();
+                                nextSongElement.Attribute("id").Value = songIndex.ToString();
+
+                                playlistElement.ReplaceNodes(playlistElement.Elements("song").OrderBy(element => int.Parse(element.Attribute("id").Value)));
+
+                                xDocument.Save(Path.Combine(Config.DefaultPath, "Playlists.xml"));
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -163,32 +211,44 @@ namespace Musical_Player.Files_management
         /// <returns>List of playlists</returns>
         public static List<string> GetPlaylists()
         {
-            // Clear the list of song paths in the configuration
-            Config.SongPaths.Clear();
+            bool erroredPath = false;
+            Dictionary<string, List<SongModel>> playlists = new Dictionary<string, List<SongModel>>();
 
-            // Get all files with the ".playlist" extension in the default directory
-            IEnumerable<string> playlists = Directory.EnumerateFiles(Config.DefaultPath, "*.playlist");
+            XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
 
-            // Clear and add playlist paths to the list
-            Config.PlaylistPaths.Clear();
-            Config.PlaylistPaths.AddRange(playlists);
+            foreach (var playlistElement in xDocument.Root.Elements("playlist"))
+            {
+                string playlistName = playlistElement.Attribute("name").Value;
+                List<SongModel> songs = playlistElement.Elements("song")
+                    .Select(songElement => new SongModel
+                    {
+                        Id = int.Parse(songElement.Attribute("id").Value),
+                        Path = songElement.Attribute("path").Value,
+                        Name = songElement.Attribute("name").Value
+                    })
+                    .ToList();
 
-            // Extract safe file names and add them to the result and playlist paths to the configuration
-            return playlists.Select(playlist => NameFilter(Path.GetFileName(playlist))).ToList();
-        }
+                playlists.Add(playlistName, songs);
+            }
 
-        /// <summary>
-        /// Swaps elements in an array
-        /// </summary>
-        /// <param name="array">Array in which to swap elements</param>
-        /// <param name="index1">First index to swap</param>
-        /// <param name="index2">Second index to swap</param>
-        private static void Swap<T>(T[] array, int index1, int index2)
-        {
-            // Temporary variable for swapping values
-            T temp = array[index1];
-            array[index1] = array[index2];
-            array[index2] = temp;
+            foreach (var key in playlists.Keys)
+            {
+                for(int i = 0; i < playlists[key].Count(); i++)
+                {
+                    if (!ValidatePath(playlists[key][i].Path))
+                    {
+                        DeleteSong(key, i);
+                        erroredPath = true;
+                    }
+                }
+            }
+
+            if (erroredPath)
+            {
+                return GetPlaylists();
+            }
+            Config.PlaylistToSongListMap = playlists;
+            return playlists.Keys.ToList();
         }
 
         /// <summary>
@@ -210,6 +270,13 @@ namespace Musical_Player.Files_management
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
+            }
+
+            if (!File.Exists(Path.Combine(Config.DefaultPath, "Playlists.xml")))
+            {
+                XElement playlistsElement = new XElement("playlists");
+                XDocument xDocument = new XDocument(playlistsElement);
+                xDocument.Save(Path.Combine(Config.DefaultPath, "Playlists.xml"));
             }
 
             if (!Directory.Exists(Path.Combine(path, "Icons")))
@@ -239,7 +306,28 @@ namespace Musical_Player.Files_management
                 return;
             }
 
-            File.AppendAllText(Path.Combine(Config.DefaultPath, playlistName + ".playlist"), path + "\n");
+            XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
+
+            XElement playlistElement = xDocument.Root.Elements("playlist").FirstOrDefault(element => element.Attribute("name").Value == playlistName);
+
+            SongModel newSong = new SongModel()
+            {
+                Name = Path.GetFileName(path),
+                Path = path,
+                Id = playlistElement.Elements().Count()
+            };
+
+            if (!playlistElement.Elements("song").Any(element => element.Attribute("id").Value == newSong.Id.ToString()))
+            {
+                XElement newSongElement = new XElement("song",
+                new XAttribute("id", newSong.Id),
+                new XAttribute("name", newSong.Name),
+                new XAttribute("path", newSong.Path));
+
+                playlistElement.Add(newSongElement);
+            }
+
+            xDocument.Save(Path.Combine(Config.DefaultPath, "Playlists.xml"));
         }
 
         /// <summary>

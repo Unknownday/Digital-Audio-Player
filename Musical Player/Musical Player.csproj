@@ -110,6 +110,7 @@
     <Compile Include="Global\PlayerLogic.cs" />
     <Compile Include="Loading logic\SetupLogic.cs" />
     <Compile Include="Models\Player.cs" />
+    <Compile Include="Models\SongModel.cs" />
     <Compile Include="Views\InfoWindow.xaml.cs">
       <DependentUpon>InfoWindow.xaml</DependentUpon>
     </Compile>

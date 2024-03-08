@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows;
+using System.Xml.Linq;
 using Path = System.IO.Path;
 
 namespace Musical_Player.Global
@@ -33,68 +35,78 @@ namespace Musical_Player.Global
         /// <summary>
         /// Gets the names of all songs in the playlist
         /// </summary>
-        /// <param name="playlistIndex">Index of the playlist</param>
+        /// <param name="playlistName">Name of the playlist</param>
         /// <returns>List of all song names</returns>
-        public static List<string> GetAllSongs(int playlistIndex)
+        public static List<string> GetAllSongs(string playlistName)
         {
-            // Read all lines from the playlist file
-            var songPaths = File.ReadAllLines(Config.PlaylistPaths[playlistIndex]);
-
-            // Check the existence of each song in the list, remove those that are missing
-            for (int i = 0; i < songPaths.Length; i++)
-            {
-                if (!FileManager.ValidatePath(songPaths[i]))
-                {
-                    FileManager.DeleteSong(playlistIndex, i);
-                }
-            }
+            var songList = Config.PlaylistToSongListMap[playlistName];
 
             // Clear the lists in Config and add existing paths and song names
-            Config.SongNames.Clear();
             Config.SongPaths.Clear();
-            Config.SongPaths.AddRange(songPaths);
-            Config.SongNames.AddRange(songPaths.Select(songPath => Path.GetFileName(songPath)));
+            Config.SongNames.Clear();
+            Config.SongPaths.AddRange(songList.Select(x => x.Path).Where(x => FileManager.ValidatePath(x)));
+            Config.SongNames.AddRange(songList.Select(x => FileManager.NameFilter($"{x.Id+1}. {x.Name}")));
 
-            // Return the formatted list of song names
-            return Config.SongPaths.Select((path, index) => FileManager.NameFilter($"{index + 1}. {Path.GetFileName(path)}")).ToList();
+            return Config.SongNames;
         }
 
         /// <summary>
         /// Shuffles the songs in the playlist
         /// </summary>
-        /// <param name="playlistIndex">Index of the playlist</param>
-        public static void ShufflePlaylist(int playlistIndex)
+        /// <param name="playlistName">Name of the playlist</param>
+        public static void ShufflePlaylist(string playlistName)
         {
-            // Read all lines from the playlist file
-            var currentPlaylist = File.ReadAllLines(Config.PlaylistPaths[playlistIndex]);
+            // Load the playlist from the XML file
+            XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
 
-            // Call the Shuffle method for random shuffling of elements
-            Shuffle(currentPlaylist);
+            XElement playlistElement = xDocument.Root.Elements("playlist")
+                .FirstOrDefault(element => element.Attribute("name").Value == playlistName);
 
-            // Write the shuffled playlist back to the file
-            File.WriteAllLines(Config.PlaylistPaths[playlistIndex], currentPlaylist);
+            if (playlistElement != null)
+            {
+                // Get the list of song elements in the playlist
+                List<XElement> songElements = playlistElement.Elements("song").ToList();
+
+                // Shuffle the song elements randomly
+                Shuffle(songElements);
+
+                // Clear existing songs in the playlist
+                playlistElement.Elements("song").Remove();
+
+                // Add the shuffled songs back to the playlist
+                playlistElement.Add(songElements);
+
+                int newIndex = 0;
+                foreach (XElement remainingSong in playlistElement.Elements("song"))
+                {
+                    remainingSong.Attribute("id").Value = newIndex.ToString();
+                    newIndex++;
+                }
+
+                // Save the modified XML document
+                xDocument.Save(Path.Combine(Config.DefaultPath, "Playlists.xml"));
+            }
         }
 
         /// <summary>
-        /// Randomly shuffles the indices in the array
+        /// Shuffles a list of XElement elements
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="array">Array to shuffle</param>
-        public static void Shuffle<T>(T[] array)
+        /// <param name="list">List of XElement elements to shuffle</param>
+        public static void Shuffle(List<XElement> list)
         {
             // Initialize the random number generator
             Random random = new Random();
 
-            int n = array.Length;
+            int n = list.Count;
             for (int i = n - 1; i > 0; i--)
             {
                 // Generate a random index
                 int j = random.Next(0, i + 1);
 
-                // Swap the values of array[i] and array[j]
-                T temp = array[i];
-                array[i] = array[j];
-                array[j] = temp;
+                // Swap the values of list[i] and list[j]
+                XElement temp = list[i];
+                list[i] = list[j];
+                list[j] = temp;
             }
         }
     }
