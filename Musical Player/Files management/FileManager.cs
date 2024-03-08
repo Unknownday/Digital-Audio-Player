@@ -57,7 +57,7 @@ namespace Musical_Player.Files_management
             {
 
                 // Use the user-entered name if available, otherwise use the default name
-                var playlistName = nameDialog.InputTextbox.Text;
+                var playlistName = nameDialog.InputTextbox.Text.Trim();
 
                 XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
                 if (xDocument.Root.Elements("playlist").Any(element => element.Attribute("name").Value == playlistName))
@@ -428,7 +428,7 @@ namespace Musical_Player.Files_management
             {
 
                 // Use the user-entered name if available, otherwise use the default name
-                var newPlaylistName = nameDialog.InputTextbox.Text;
+                var newPlaylistName = nameDialog.InputTextbox.Text.Trim();
 
                 XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
                 if (xDocument.Root.Elements("playlist").Any(element => element.Attribute("name").Value == newPlaylistName))
