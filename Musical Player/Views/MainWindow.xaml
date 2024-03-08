@@ -1,0 +1,68 @@
+﻿<Window x:Class="MusicalPlayer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MusicalPlayer"
+        mc:Ignorable="d"
+        Title="Digital audio player" Height="704" Width="1200" ResizeMode="NoResize" DragEnter="Window_DragEnter" DragLeave="Window_DragLeave" Closing="Window_Closing">
+    <Grid>
+        <!-- Кнопка информации о программе -->
+        <Image Height="24" Width="24" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="ProgramInfoButton" MouseDown="ProgramInfoButton_MouseDown" Margin="10,6,0,0"/>
+
+        <!-- Слайдер громкости -->
+        <Slider HorizontalAlignment="Left" VerticalAlignment="Top" Margin="39,10,0,0" Width="361" x:Name="VolumeSlider" Maximum="100" Value="50" ValueChanged="audioBarSlider_ValueChanged" Height="22" />
+
+        <!-- Метка с текущей громкостью -->
+        <Label Content="50%" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="405,6,0,0" x:Name="VolumeLabel" FontFamily="DejaVu Sans" FontSize="18" />
+
+        <!-- Кнопка отключения звука -->
+        <Image Height="24" Width="24" Margin="473,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="MuteButton" MouseDown="MuteButton_MouseDown"/>
+
+        <!-- Кнопка открытия настроек -->
+        <Image Height="24" Width="24" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="SettingsButton" MouseDown="SettingsButton_MouseDown" Margin="1138,6,0,0"/>
+
+        <!-- Список плейлистов -->
+        <ListBox Margin="15,68,680,134" x:Name="PlaylistsList" SelectionChanged="PlaylistsList_SelectionChanged" FontFamily="DejaVu Sans" FontSize="18" Background="{x:Null}"/>
+
+        <!-- Кнопка добавления нового плейлиста -->
+        <Image Height="32" Width="32" Margin="504,118,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="AddPlaylistButton" MouseDown="AddPlaylistButton_MouseDown"/>
+
+        <!-- Кнопка удаления текущего плейлиста -->
+        <Image Height="32" Width="32" Margin="507,155,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="DeletePlaylistButton" MouseDown="DeletePlaylistButton_MouseDown"/>
+
+        <!-- Кнопки управления песнями в плейлисте -->
+        <Image Height="32" Width="32" Margin="643,70,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="MoveUpButton" MouseDown="MoveUpButton_MouseDown"/>
+        <Image Height="32" Width="32" Margin="643,107,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="MoveDownButton" MouseDown="MoveDownButton_MouseDown"/>
+        <Image Height="32" Width="32" Margin="643,139,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="AddSongButton" MouseDown="AddSongButton_MouseDown"/>
+        <Image Height="32" Width="32" Margin="647,176,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="DeleteSongButton" MouseDown="DeleteSongButton_MouseDown"/>
+
+        <!-- Список песен в текущем плейлисте -->
+        <ListBox Margin="680,68,15,134" x:Name="SongList" SelectionChanged="SongList_SelectionChanged" FontFamily="DejaVu Sans" FontSize="14" MouseDoubleClick="SongList_MouseDoubleClick" Background="{x:Null}"/>
+
+        <!-- Кнопки управления воспроизведением -->
+        <Image Height="48" Width="48" Margin="10,574,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="PlayPreviosButton" MouseDown="PlayPreviosSongButton_MouseDown"/>
+        <Image Height="48" Width="48" Margin="77,574,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="PlayButton" MouseDown="PlayButton_MouseDown"/>
+        <Image Height="48" Width="48" Margin="140,574,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="PauseButton" MouseDown="PauseButton_MouseDown"/>
+        <Image Height="48" Width="48" Margin="211,574,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="PlayNextSongButton" MouseDown="PlayNextSongButton_MouseDown"/>
+
+        <!-- Метка продолжительности песни -->
+        <Label Content="00:00/00:00" HorizontalAlignment="Left" Margin="280,583,0,0" VerticalAlignment="Top" x:Name="DurationLabel" FontFamily="DejaVu Sans" FontSize="18"/>
+
+        <!-- Слайдер продолжительности песни -->
+        <Slider HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,636,0,0" Width="1175" x:Name="DurationSlider" Thumb.DragDelta="Slider_DragDelta" ValueChanged="DurationBarSlider_ValueChanged" />
+
+        <!-- Метка с именем текущей песни -->
+        <Label Content="Сначала выберите песню" HorizontalAlignment="Left" Margin="423,583,0,0" VerticalAlignment="Top" x:Name="SongNameLabel" FontFamily="DejaVu Sans" FontSize="18"/>
+
+        <!-- Кнопка для перемешивания песен -->
+        <Button Content="Перемешать песни" HorizontalAlignment="Left" Margin="835,530,0,0" VerticalAlignment="Top" Width="195" BorderBrush="#FFABADB3" Background="#00DDDDDD" x:Name="ShuffeButton" Click="ShuffeButton_Click" BorderThickness="1,0,1,1" FontFamily="DejaVu Sans" FontSize="18" Padding="1,1,1,1"/>
+
+        <!-- Метка подсказки -->
+        <Label Content="Отпустите, чтобы добавить!" HorizontalAlignment="Center" Margin="0,255,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="36" FontWeight="Bold" x:Name="TipLabel" Visibility="Hidden"/>
+
+        <!-- Метки для списков -->
+        <Label x:Name="PlaylistLabel" Content="Ваши плейлисты: " HorizontalAlignment="Left" Margin="176,37,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="18"/>
+        <Label x:Name="SongLabel" Content="Ваши песни: " HorizontalAlignment="Left" Margin="865,37,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="18"/>
+    </Grid>
+</Window>
