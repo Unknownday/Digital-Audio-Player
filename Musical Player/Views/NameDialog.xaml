@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Musical_Player.Views"
         mc:Ignorable="d"
-        Title="Digital audio player" Height="127" Width="350" Closing="Window_Closing" Icon="/Resources/Audio player.ico" WindowStartupLocation="CenterScreen">
+        Title="Digital audio player" Height="127" Width="350" Closing="Window_Closing" Icon="/Resources/Audio player.ico" WindowStartupLocation="CenterOwner">
     <Grid>
         <!-- Поле ввода названия плейлиста -->
         <TextBox x:Name="InputTextbox" HorizontalAlignment="Center" Margin="0,36,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="250" FontFamily="DejaVu Sans" TextChanged="InputTextbox_TextChanged" UndoLimit="30"/>
