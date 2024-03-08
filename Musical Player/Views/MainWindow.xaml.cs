@@ -240,7 +240,6 @@ namespace MusicalPlayer
             try
             {
                 var currentIndex = SongList.SelectedIndex;
-                var currentPlaylistIndex = PlaylistsList.SelectedIndex;
                 if (currentIndex - 1 < 0) { return; }
 
                 // Move the song up in the queue
@@ -248,7 +247,6 @@ namespace MusicalPlayer
 
                 // Update the playlist list
                 UpdatePlaylistList();
-                PlaylistsList.SelectedIndex = currentPlaylistIndex;
                 // Update the song list
                 UpdateSongList();  
                 SongList.SelectedIndex = currentIndex - 1;
@@ -269,14 +267,12 @@ namespace MusicalPlayer
             try
             {
                 var currentIndex = SongList.SelectedIndex;
-                var currentPlaylistIndex = PlaylistsList.SelectedIndex;
                 if (currentIndex + 1 >= SongList.Items.Count) { return; }
                 // Move the song down in the queue
                 FileManager.MoveSongInQueue(currentIndex, PlaylistsList.SelectedItem.ToString(), Enums.MoveDirections.Down);
 
                 // Update the playlist list
                 UpdatePlaylistList();
-                PlaylistsList.SelectedIndex = currentPlaylistIndex;
                 // Update the song list
                 UpdateSongList();
                 SongList.SelectedIndex = currentIndex + 1;
@@ -296,14 +292,12 @@ namespace MusicalPlayer
 
             try
             {
-                var currentIndex = PlaylistsList.SelectedIndex;
                 // Add a song to the playlist
                 FileManager.AddSongToPlaylist(PlaylistsList.SelectedItem.ToString());
 
-                // Update the song list
-                UpdateSongList();
+                // Update the song and playlist list
                 UpdatePlaylistList();
-                PlaylistsList.SelectedIndex = currentIndex;
+                UpdateSongList();
             }
             catch (Exception ex)
             {
@@ -324,18 +318,14 @@ namespace MusicalPlayer
 
             try
             {
-                var currentIndex = SongList.SelectedIndex;
-                var currentPlaylistIndex = PlaylistsList.SelectedIndex;
                 // Delete the selected song from the playlist
-                FileManager.DeleteSong(PlaylistsList.SelectedItem.ToString(), currentIndex);
+                FileManager.DeleteSong(PlaylistsList.SelectedItem.ToString(), SongList.SelectedIndex);
 
+                // Update the playlist list
                 UpdatePlaylistList();
-                PlaylistsList.SelectedIndex = currentPlaylistIndex;
 
                 // Update the song list
                 UpdateSongList();
-
-                SongList.SelectedIndex = currentIndex;
             }
             catch { }
         }
@@ -679,9 +669,7 @@ namespace MusicalPlayer
 
             // Shuffle the playlist
             PlayerLogic.ShufflePlaylist(PlaylistsList.SelectedItem.ToString());
-            int choosedPlaylist = PlaylistsList.SelectedIndex;
             UpdatePlaylistList();
-            PlaylistsList.SelectedIndex = choosedPlaylist;
 
             // Update the song list
             UpdateSongList();
@@ -816,8 +804,10 @@ namespace MusicalPlayer
         /// </summary>
         private void UpdateSongList()
         {
+            int lastIndex = SongList.SelectedIndex;
             SongList.ItemsSource = null;
             SongList.ItemsSource = PlayerLogic.GetAllSongs(PlaylistsList.SelectedItem.ToString());
+            SongList.SelectedIndex = lastIndex;
         }
 
         /// <summary>
@@ -825,8 +815,10 @@ namespace MusicalPlayer
         /// </summary>
         private void UpdatePlaylistList()
         {
+            int lastIndex = PlaylistsList.SelectedIndex;
             PlaylistsList.ItemsSource = null;
             PlaylistsList.ItemsSource = FileManager.GetPlaylists();
+            PlaylistsList.SelectedIndex = lastIndex;
         }
 
         /// <summary>
@@ -849,6 +841,7 @@ namespace MusicalPlayer
             MoveUpButton.Source = Config.IconsMap[10].ImageSource;
             SettingsButton.Source = Config.IconsMap[12].ImageSource;
             RepeatSongButton.Source = Config.IconsMap[13].ImageSource;
+            RenamePlaylistButton.Source = Config.IconsMap[14].ImageSource;
 
             // Set the foreground color for various UI elements based on the configured theme color
             var color = System.Drawing.Color.FromName(Config.Theme);
@@ -862,10 +855,30 @@ namespace MusicalPlayer
             SongNameLabel.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
         }
 
+        /// <summary>
+        /// Click handler for repeat button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RepeatSongButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            // Updating variable value
             isRepeating = !isRepeating;
+
+            // Updating repeating indicator visibility
             RepeatIndicatorLabel.Visibility = isRepeating ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        /// <summary>
+        /// Click handler for rename playlis button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RenamePlaylistButton_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            FileManager.RenamePlaylist(PlaylistsList.SelectedItem.ToString());
+
+            UpdatePlaylistList();
         }
     }
 }

@@ -29,7 +29,10 @@
         <Image Height="32" Width="32" Margin="504,118,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="AddPlaylistButton" MouseDown="AddPlaylistButton_MouseDown"/>
 
         <!-- Delete current playlist button -->
-        <Image Height="32" Width="32" Margin="507,155,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="DeletePlaylistButton" MouseDown="DeletePlaylistButton_MouseDown"/>
+        <Image Height="32" Width="32" Margin="507,151,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="DeletePlaylistButton" MouseDown="DeletePlaylistButton_MouseDown"/>
+        
+        <!-- Rename choosed playlist -->
+        <Image Height="32" Width="32" Margin="507,184,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="RenamePlaylistButton" MouseDown="RenamePlaylistButton_MouseDown" />
 
         <!-- Song management buttons in the playlist -->
         <Image Height="32" Width="32" Margin="643,70,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="MoveUpButton" MouseDown="MoveUpButton_MouseDown"/>

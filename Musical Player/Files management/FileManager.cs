@@ -63,6 +63,7 @@ namespace Musical_Player.Files_management
                 if (xDocument.Root.Elements("playlist").Any(element => element.Attribute("name").Value == playlistName))
                 {
                     MessageBox.Show("Playlist with the same name is already exists!");
+                    return;
                 }
                 XElement newPlaylistElement = new XElement("playlist", new XAttribute("name", playlistName));
                 xDocument.Root.Add(newPlaylistElement);
@@ -410,6 +411,37 @@ namespace Musical_Player.Files_management
                     client.DownloadFile("https://sharedby.blomp.com/6dxQGn", Path.Combine(Config.DefaultPath, "Icons", "WhiteBackground.png"));
                 }
                 catch { }
+            }
+        }
+
+        /// <summary>
+        /// Renames the playlist
+        /// </summary>
+        /// <param name="playlistName"></param>
+        public static void RenamePlaylist(string playlistName)
+        {
+            // Open a dialog to get the new playlist name from the user
+            var nameDialog = new NameDialog();
+            bool? dialogResult = nameDialog.ShowDialog();
+            // If the user confirms the dialog, proceed to create the playlist
+            if (dialogResult == true)
+            {
+
+                // Use the user-entered name if available, otherwise use the default name
+                var newPlaylistName = nameDialog.InputTextbox.Text;
+
+                XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
+                if (xDocument.Root.Elements("playlist").Any(element => element.Attribute("name").Value == newPlaylistName))
+                {
+                    MessageBox.Show("Playlist with the same name is already exists!");
+                    return;
+                }
+                XElement playlistElement = xDocument.Root.Elements("playlist")
+                .FirstOrDefault(element => element.Attribute("name").Value == playlistName); 
+
+                 playlistElement.Attribute("name").Value = newPlaylistName;
+
+                xDocument.Save(Path.Combine(Config.DefaultPath, "Playlists.xml"));
             }
         }
     }

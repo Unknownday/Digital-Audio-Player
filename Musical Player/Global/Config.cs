@@ -68,6 +68,6 @@ namespace Musical_Player.Global
         /// <summary>
         /// Constant representing the version number
         /// </summary>
-        public const string VERSION = "1.0.4.0";
+        public const string VERSION = "1.0.5.0";
     }
 }
