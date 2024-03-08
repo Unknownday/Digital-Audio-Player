@@ -114,7 +114,7 @@ namespace Musical_Player.LoadingLogic
 
                 int imageHeight = bitmapImage.PixelHeight;
 
-                for (int i = 0; i < 12; i++)
+                for (int i = 0; i < 13; i++)
                 {
                     // Crop a 64x64 square from the image
                     CroppedBitmap croppedBitmap = new CroppedBitmap(

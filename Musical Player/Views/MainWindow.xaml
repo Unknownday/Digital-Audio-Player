@@ -34,8 +34,9 @@
         <!-- Song management buttons in the playlist -->
         <Image Height="32" Width="32" Margin="643,70,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="MoveUpButton" MouseDown="MoveUpButton_MouseDown"/>
         <Image Height="32" Width="32" Margin="643,107,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="MoveDownButton" MouseDown="MoveDownButton_MouseDown"/>
-        <Image Height="32" Width="32" Margin="643,139,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="AddSongButton" MouseDown="AddSongButton_MouseDown"/>
-        <Image Height="32" Width="32" Margin="647,176,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="DeleteSongButton" MouseDown="DeleteSongButton_MouseDown"/>
+        <Image Height="32" Width="32" Margin="643,140,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="AddSongButton" MouseDown="AddSongButton_MouseDown"/>
+        <Image Height="32" Width="32" Margin="643,177,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="DeleteSongButton" MouseDown="DeleteSongButton_MouseDown"/>
+        <Image Height="32" Width="32" Margin="643,210,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="RepeatSongButton" MouseDown="RepeatSongButton_MouseDown" />
 
         <!-- List of songs in the current playlist -->
         <ListBox Margin="680,68,15,134" x:Name="SongList" SelectionChanged="SongList_SelectionChanged" FontFamily="DejaVu Sans" FontSize="14" MouseDoubleClick="SongList_MouseDoubleClick" Background="{x:Null}"/>
@@ -64,5 +65,6 @@
         <!-- Labels for the lists -->
         <Label x:Name="PlaylistLabel" Content="Your Playlists: " HorizontalAlignment="Left" Margin="198,37,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="18"/>
         <Label x:Name="SongLabel" Content="Your Songs: " HorizontalAlignment="Left" Margin="872,39,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="18"/>
+        <Label x:Name="RepeatIndicatorLabel" Content="REPEAT" HorizontalAlignment="Center" Margin="0,607,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" Foreground="Red" FontWeight="Bold" Visibility="Hidden"/>
     </Grid>
 </Window>

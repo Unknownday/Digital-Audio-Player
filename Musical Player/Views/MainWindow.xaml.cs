@@ -47,6 +47,11 @@ namespace MusicalPlayer
         private Timer durationTimer;
 
         /// <summary>
+        /// Variable to track if enabled repeating song
+        /// </summary>
+        public bool isRepeating = false;
+
+        /// <summary>
         /// Constructor for the MainWindow class
         /// </summary>
         public MainWindow()
@@ -595,6 +600,14 @@ namespace MusicalPlayer
             // Check for the end of the song to avoid starting a new one while the old one is playing
             if (DurationSlider.Value == DurationSlider.Maximum)
             {
+                if (isRepeating)
+                {
+                    DurationSlider.Value = 0;
+                    InitSong(SongList.SelectedIndex);
+                    PlaySong();
+                    return;
+                }
+
                 // Automatically play the next song
                 PlayNextTrack(Player.IsAutoSwitching);
             }
@@ -835,6 +848,7 @@ namespace MusicalPlayer
             MoveDownButton.Source = Config.IconsMap[11].ImageSource;
             MoveUpButton.Source = Config.IconsMap[10].ImageSource;
             SettingsButton.Source = Config.IconsMap[12].ImageSource;
+            RepeatSongButton.Source = Config.IconsMap[13].ImageSource;
 
             // Set the foreground color for various UI elements based on the configured theme color
             var color = System.Drawing.Color.FromName(Config.Theme);
@@ -846,6 +860,12 @@ namespace MusicalPlayer
             VolumeLabel.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
             DurationLabel.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
             SongNameLabel.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
+        }
+
+        private void RepeatSongButton_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            isRepeating = !isRepeating;
+            RepeatIndicatorLabel.Visibility = isRepeating ? Visibility.Visible : Visibility.Hidden;
         }
     }
 }
