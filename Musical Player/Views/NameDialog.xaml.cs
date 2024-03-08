@@ -1,66 +1,96 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Musical_Player.Views
 {
     /// <summary>
-    /// Логика взаимодействия для NameDialog.xaml
+    /// Interaction logic for the NameDialog.xaml
     /// </summary>
     public partial class NameDialog : Window
     {
+        /// <summary>
+        /// Opens namedialog
+        /// </summary>
         public NameDialog()
         {
-            // Инициализация компонентов диалогового окна
+            // Initialize the components of the dialog window
             InitializeComponent();
 
-            // Устанавливаем кнопку OK в неактивное состояние при создании окна
+            // Set the OK button to be disabled when the window is created
             OK.IsEnabled = false;
         }
 
-        // Поле для хранения результата диалога (нажата кнопка OK или нет)
+        // Field to store the dialog result (whether OK button is clicked or not)
         private bool Result = false;
 
-        // Обработчик события нажатия на кнопку OK
+        /// <summary>
+        /// Event handler for the OK button click event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OK_Click(object sender, RoutedEventArgs e)
         {
-            // Устанавливаем результат в true и закрываем окно
+            // Set the result to true and close the window
             Result = true;
             Close();
         }
 
-        // Обработчик события закрытия окна
+        /// <summary>
+        /// Event handler for the window closing event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Устанавливаем DialogResult в соответствии с результатом
+            // Set the DialogResult based on the result
             DialogResult = Result;
         }
 
-        // Обработчик события изменения текста в поле ввода
+        /// <summary>
+        /// Event handler for the text change event in the input field
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void InputTextbox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // Проверяем, не является ли текстовое поле пустым или null
-            if (InputTextbox.Text.Length == 0 || InputTextbox.Text == null)
+            // Check if the text field is empty or null
+            if (InputTextbox.Text.Length == 0 || string.IsNullOrWhiteSpace(InputTextbox.Text) || InputTextbox.Text.StartsWith(" "))
             {
-                // Если пусто, делаем кнопку OK неактивной
+                // If empty, disable the OK button
                 OK.IsEnabled = false;
             }
             else
             {
-                // Если есть текст, активируем кнопку OK
-                OK.IsEnabled = true;
+                // Check for invalid characters in the input
+                if (InputTextbox.Text.Contains("<")
+                    || InputTextbox.Text.Contains(">")
+                    || InputTextbox.Text.Contains("/")
+                    || InputTextbox.Text.Contains(@"\")
+                    || InputTextbox.Text.Contains(":")
+                    || InputTextbox.Text.Contains("?")
+                    || InputTextbox.Text.Contains("*")
+                    || InputTextbox.Text.Contains(":")
+                    || InputTextbox.Text.Contains("|")
+                    || InputTextbox.Text.Contains('"'))
+                {
+                    OK.IsEnabled = false;
+                    Tiplabel.Content = @"Name can't contain <>/\*|?:";
+                }
+
+                // Check for the maximum length of the input
+                if (InputTextbox.Text.Length > 34)
+                {
+                    OK.IsEnabled = false;
+                    Tiplabel.Content = @"Max 35 symbols!";
+                }
+                else
+                {
+                    // If there is text, enable the OK button and update the tip label
+                    Tiplabel.Content = "Input new playlist name";
+                    OK.IsEnabled = true;
+                }
             }
         }
-
     }
 }

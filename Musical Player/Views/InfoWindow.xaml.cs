@@ -4,7 +4,7 @@ using System.Windows;
 namespace Musical_Player.Views
 {
     /// <summary>
-    /// Логика взаимодействия для InfoWindow.xaml
+    /// Interaction logic for InfoWindow.xaml
     /// </summary>
     public partial class InfoWindow : Window
     {
@@ -12,11 +12,14 @@ namespace Musical_Player.Views
         {
             InitializeComponent();
 
+            // Set the content of the VersionLabel to the application version from the global configuration
             VersionLabel.Content = Config.VERSION;
         }
 
+        // Event handler for the button click event
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            // Close the window
             Close();
         }
     }

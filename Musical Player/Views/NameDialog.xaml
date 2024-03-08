@@ -5,15 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Musical_Player.Views"
         mc:Ignorable="d"
-        Title="Digital audio player" Height="123" Width="350" Closing="Window_Closing">
+        Title="Digital audio player" Height="127" Width="350" Closing="Window_Closing" Icon="/Resources/Audio player.ico" WindowStartupLocation="CenterScreen">
     <Grid>
         <!-- Поле ввода названия плейлиста -->
-        <TextBox x:Name="InputTextbox" HorizontalAlignment="Center" Margin="0,36,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="330" FontFamily="DejaVu Sans" TextChanged="InputTextbox_TextChanged"/>
+        <TextBox x:Name="InputTextbox" HorizontalAlignment="Center" Margin="0,36,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="250" FontFamily="DejaVu Sans" TextChanged="InputTextbox_TextChanged" UndoLimit="30"/>
 
         <!-- Кнопка подтверждения -->
-        <Button x:Name="OK" Content="Подтвердить" HorizontalAlignment="Center" Margin="0,59,0,0" VerticalAlignment="Top" Width="250" Click="OK_Click" FontFamily="DejaVu Sans"/>
+        <Button x:Name="OK" Content="Submit" HorizontalAlignment="Center" Margin="0,59,0,0" VerticalAlignment="Top" Width="250" Click="OK_Click" FontFamily="DejaVu Sans"/>
 
         <!-- Метка с инструкцией -->
-        <Label Content="Введите название плейлиста" HorizontalAlignment="Left" Margin="4,10,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans"/>
+        <Label x:Name="Tiplabel" Content="Input new playlist name" HorizontalAlignment="Left" Margin="44,12,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans"/>
     </Grid>
 </Window>

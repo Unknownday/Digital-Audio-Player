@@ -12,12 +12,17 @@ namespace Musical_Player.LoadingLogic
 {
     public static class SetupLogic
     {
+        /// <summary>
+        /// Configures the program based on saved settings
+        /// </summary>
         public static void ConfigureProgram()
         {
+            // Try loading the configuration settings
             var currentConfig = ConfigManager.TryLoadConfig();
 
             if (currentConfig != null)
             {
+                // Check and update DefaultPath if available
                 if (currentConfig.TryGetValue("DefaultPath", out string defPath))
                 {
                     if (!string.IsNullOrEmpty(defPath))
@@ -26,6 +31,7 @@ namespace Musical_Player.LoadingLogic
                     }
                 }
 
+                // Check and update BackgroundImagePath if available
                 if (currentConfig.TryGetValue("Background", out string background))
                 {
                     if (!string.IsNullOrEmpty(background))
@@ -34,6 +40,7 @@ namespace Musical_Player.LoadingLogic
                     }
                 }
 
+                // Check and update LastPlaylist if available
                 if (currentConfig.TryGetValue("LastPlaylist", out string playlist))
                 {
                     if (!string.IsNullOrEmpty(playlist))
@@ -45,6 +52,7 @@ namespace Musical_Player.LoadingLogic
                     }
                 }
 
+                // Check and update LastSong if available
                 if (currentConfig.TryGetValue("LastSong", out string song))
                 {
                     if (!string.IsNullOrEmpty(song))
@@ -56,6 +64,7 @@ namespace Musical_Player.LoadingLogic
                     }
                 }
 
+                // Check and update LastVolume if available
                 if (currentConfig.TryGetValue("LastVolume", out string volume))
                 {
                     if (!string.IsNullOrEmpty(volume))
@@ -67,6 +76,7 @@ namespace Musical_Player.LoadingLogic
                     }
                 }
 
+                // Check and update AutoSwitching setting if available
                 if (currentConfig.TryGetValue("AutoSwitch", out string autoSwitch))
                 {
                     if (!string.IsNullOrEmpty(autoSwitch))
@@ -77,6 +87,8 @@ namespace Musical_Player.LoadingLogic
                         }
                     }
                 }
+
+                // Check and update Theme if available
                 if (currentConfig.TryGetValue("Theme", out string theme))
                 {
                     if (!string.IsNullOrEmpty(theme))
@@ -87,29 +99,33 @@ namespace Musical_Player.LoadingLogic
             }
         }
 
+        /// <summary>
+        /// Creates a dictionary of icon brushes based on the specified theme
+        /// </summary>
+        /// <param name="theme">Selected theme for icons</param>
         public static void CreateIconsBitmap(string theme)
         {
             Dictionary<int, ImageBrush> iconDictionary = new Dictionary<int, ImageBrush>();
 
             try
             {
-                // Загрузка изображения
+                // Load the image from the specified path
                 BitmapImage bitmapImage = new BitmapImage(new Uri(System.IO.Path.Combine(Config.DefaultPath, "Icons", $"{theme}IconSet.png")));
 
                 int imageHeight = bitmapImage.PixelHeight;
 
                 for (int i = 0; i < 12; i++)
                 {
-                    // Вырезание квадрата 64x64 из изображения
+                    // Crop a 64x64 square from the image
                     CroppedBitmap croppedBitmap = new CroppedBitmap(
                         bitmapImage,
-                        new Int32Rect(i * (imageHeight+2), 0, imageHeight, imageHeight)
-                            
+                        new Int32Rect(i * (imageHeight + 2), 0, imageHeight, imageHeight)
                     );
-                    // Создание ImageBrush из CroppedBitmap
+
+                    // Create an ImageBrush from the CroppedBitmap
                     ImageBrush imageBrush = new ImageBrush(croppedBitmap);
 
-                    // Добавление в словарь
+                    // Add to the dictionary
                     iconDictionary.Add(i + 1, imageBrush);
                 }
 

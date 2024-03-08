@@ -1,6 +1,4 @@
-﻿using Microsoft.Win32;
-using Musical_Player.Global;
-using Musical_Player.Models;
+﻿using Musical_Player.Global;
 using Musical_Player.Views;
 using System;
 using System.Collections.Generic;
@@ -15,18 +13,18 @@ using Path = System.IO.Path;
 namespace Musical_Player.Files_management
 {
     /// <summary>
-    /// Работа с файлами
+    /// File management
     /// </summary>
     public static class FileManager
     {
         /// <summary>
-        /// Фильтр названий файлов. Очищает название файла от всего не нужного
+        /// File name filter. Cleans the file name from unnecessary elements
         /// </summary>
-        /// <param name="name">Название файла</param>
-        /// <returns>Очищенное название</returns>
+        /// <param name="name">File name</param>
+        /// <returns>Cleaned name</returns>
         public static string NameFilter(string name)
         {
-            // Список форматов файлов, которые будут удалены из названия
+            // List of file formats to be removed from the name
             List<string> DeletingFormats = new List<string>()
             {
                 ".mp3",
@@ -35,56 +33,56 @@ namespace Musical_Player.Files_management
                 ".playlist",
             };
 
-            // Итерация по каждому формату и удаление из названия
+            // Iterating through each format and removing it from the name
             foreach (string to_replace in DeletingFormats)
             {
                 name = name.Replace(to_replace, "");
             }
-            return name; // Возвращаем отфильтрованное название
+            return name; // Returning the filtered name
         }
 
         /// <summary>
-        /// Создает новый плейлист с указанным пользователем названием
+        /// Creates a new playlist with the specified user name
         /// </summary>
         public static void CreatePlaylist()
         {
-            // Открываем диалог для получения от пользователя названия плейлиста
+            // Open a dialog to get the playlist name from the user
             var nameDialog = new NameDialog();
             bool? dialogResult = nameDialog.ShowDialog();
 
-            // Если пользователь подтверждает диалог, приступаем к созданию плейлиста
+            // If the user confirms the dialog, proceed to create the playlist
             if (dialogResult == true)
             {
-                // Название плейлиста по умолчанию
-                string playlistName = "Новый плейлист";
+                // Default playlist name
+                string playlistName = "New Playlist";
 
-                // Используем введенное пользователем название, если оно доступно, иначе используем название по умолчанию
-                playlistName = nameDialog.InputTextbox.Text == null ? "Новый плейлист" : nameDialog.InputTextbox.Text + ".playlist";
+                // Use the user-entered name if available, otherwise use the default name
+                playlistName = nameDialog.InputTextbox.Text == null ? "New Playlist" : nameDialog.InputTextbox.Text + ".playlist";
 
-                // Проверяем, существует ли уже плейлист с таким же названием
+                // Check if a playlist with the same name already exists
                 if (File.Exists(Path.Combine(Config.DefaultPath, playlistName)))
                 {
-                    MessageBox.Show("Плейлист с таким названием уже существует! Выберите другое!", "Музыкальный плеер");
+                    MessageBox.Show("A playlist with this name already exists! Please choose another.", "Music Player");
                     return;
                 }
 
-                // Создаем пустой файл плейлиста
+                // Create an empty playlist file
                 File.Create(Path.Combine(Config.DefaultPath, playlistName)).Close();
             }
         }
 
         /// <summary>
-        /// Добавляет новую песню в плейлист
+        /// Adds a new song to the playlist
         /// </summary>
-        /// <param name="playlistIndex">Индекс плейлиста</param>
+        /// <param name="playlistIndex">Playlist index</param>
         public static void AddSongToPlaylist(int playlistIndex)
         {
-            // Открываем диалог для выбора песен
+            // Open a dialog to choose songs
             OpenFileDialog opnFileDlg = new OpenFileDialog();
             opnFileDlg.Filter = "(mp3),(wav),(ogg)|*.mp3;*.wav;*.ogg;";
             opnFileDlg.Multiselect = true;
 
-            // Если файлы выбраны, добавляем их пути в файл плейлиста
+            // If files are selected, add their paths to the playlist file
             if (opnFileDlg.ShowDialog() == true)
             {
                 foreach (string fileName in opnFileDlg.FileNames)
@@ -95,120 +93,120 @@ namespace Musical_Player.Files_management
         }
 
         /// <summary>
-        /// Удаляет песню из плейлиста
+        /// Deletes a song from the playlist
         /// </summary>
-        /// <param name="playlistIndex">Индекс плейлиста</param>
-        /// <param name="songIndex">Местоположение песни в списке</param>
+        /// <param name="playlistIndex">Playlist index</param>
+        /// <param name="songIndex">Song index in the list</param>
         public static void DeleteSong(int playlistIndex, int songIndex)
         {
-            // Читаем текущий плейлист
-            var curentPlaylist = File.ReadAllLines(Config.PlaylistPaths[playlistIndex]);
+            // Read the current playlist
+            var currentPlaylist = File.ReadAllLines(Config.PlaylistPaths[playlistIndex]);
 
-            // Создаем новый плейлист, исключая указанную песню
-            var newPlaylist = curentPlaylist.Where((x, index) => index != songIndex).ToList();
+            // Create a new playlist excluding the specified song
+            var newPlaylist = currentPlaylist.Where((x, index) => index != songIndex).ToList();
 
-            // Записываем новый плейлист обратно в файл
+            // Write the new playlist back to the file
             File.WriteAllLines(Config.PlaylistPaths[playlistIndex], newPlaylist);
         }
 
         /// <summary>
-        /// Удаляет плейлист
+        /// Deletes a playlist
         /// </summary>
-        /// <param name="playlistIndex">Индекс плейлиста</param>
+        /// <param name="playlistIndex">Playlist index</param>
         public static void DeletePlaylist(int playlistIndex)
         {
-            // Удаляем файл плейлиста
+            // Delete the playlist file
             File.Delete(Config.PlaylistPaths[playlistIndex]);
         }
 
         /// <summary>
-        /// Перемещает песню вверх или вниз по списку 
+        /// Moves a song up or down in the playlist
         /// </summary>
-        /// <param name="songIndex">Местоположение песни в списке</param>
-        /// <param name="playlistIndex">Индекс плейлиста</param>
-        /// <param name="direction">Направление перемещения (вниз = 0, вверх = 1)</param>
+        /// <param name="songIndex">Song index in the list</param>
+        /// <param name="playlistIndex">Playlist index</param>
+        /// <param name="direction">Move direction (down = 0, up = 1)</param>
         public static void MoveSongInQueue(int songIndex, int playlistIndex, Enums.MoveDirections direction)
         {
             try
             {
-                // Читаем текущий плейлист
+                // Read the current playlist
                 var currentPlaylist = File.ReadAllLines(Config.PlaylistPaths[playlistIndex]);
 
-                // Рассчитываем новый индекс в зависимости от указанного направления
+                // Calculate the new index based on the specified direction
                 int newIndex = direction == Enums.MoveDirections.Down ? songIndex + 1 : songIndex - 1;
 
-                // Проверяем, находится ли новый индекс в пределах допустимых значений
+                // Check if the new index is within valid bounds
                 if (newIndex >= 0 && newIndex < currentPlaylist.Length)
                 {
-                    // Меняем местами текущую песню и ту, которая находится на новом индексе
+                    // Swap the current song with the one at the new index
                     Swap(currentPlaylist, songIndex, newIndex);
 
-                    // Записываем модифицированный плейлист обратно в файл
+                    // Write the modified playlist back to the file
                     File.WriteAllLines(Config.PlaylistPaths[playlistIndex], currentPlaylist);
                 }
                 else
                 {
-                    // Выводим сообщение об ошибке для недопустимой операции перемещения
-                    Console.WriteLine("Недопустимая операция перемещения песни.");
+                    // Display an error message for an invalid move operation
+                    Console.WriteLine("Invalid song move operation.");
                 }
             }
             catch (Exception ex)
             {
-                // Обрабатываем любые исключения и выводим сообщение об ошибке
-                Console.WriteLine($"Произошла ошибка: {ex.Message}");
+                // Handle any exceptions and display an error message
+                Console.WriteLine($"An error occurred: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Получает названия плейлистов 
+        /// Gets the names of playlists
         /// </summary>
-        /// <returns>Список плейлистов</returns>
+        /// <returns>List of playlists</returns>
         public static List<string> GetPlaylists()
         {
-            // Очищаем список путей песен в конфигурации
+            // Clear the list of song paths in the configuration
             Config.SongPaths.Clear();
 
-            // Получаем все файлы с расширением ".playlist" в стандартной директории
+            // Get all files with the ".playlist" extension in the default directory
             IEnumerable<string> playlists = Directory.EnumerateFiles(Config.DefaultPath, "*.playlist");
 
-            // Очищаем и добавлем пути плейлистов в список 
+            // Clear and add playlist paths to the list
             Config.PlaylistPaths.Clear();
             Config.PlaylistPaths.AddRange(playlists);
 
-            // Извлекаем безопасные имена файлов и добавляем их в результат и пути плейлистов в конфигурацию
+            // Extract safe file names and add them to the result and playlist paths to the configuration
             return playlists.Select(playlist => NameFilter(Path.GetFileName(playlist))).ToList();
         }
 
         /// <summary>
-        /// Меняет местами элементы в массиве
+        /// Swaps elements in an array
         /// </summary>
-        /// <param name="array">Массив в котором надо поменять элементы местами</param>
-        /// <param name="index1">Первый индекс для замены</param>
-        /// <param name="index2">Второй индекс для замены</param>
+        /// <param name="array">Array in which to swap elements</param>
+        /// <param name="index1">First index to swap</param>
+        /// <param name="index2">Second index to swap</param>
         private static void Swap<T>(T[] array, int index1, int index2)
         {
-            // Временная переменная для обмена значениями местами
+            // Temporary variable for swapping values
             T temp = array[index1];
             array[index1] = array[index2];
             array[index2] = temp;
         }
 
         /// <summary>
-        /// Проверяет существует ли песня по данному пути
+        /// Checks if a song exists at the given path
         /// </summary>
         /// <param name="path"></param>
-        /// <returns>True если песня существует. False если песня не существует</returns>
+        /// <returns>True if the song exists. False if the song does not exist</returns>
         public static bool ValidatePath(string path)
         {
             return File.Exists(path);
         }
 
         /// <summary>
-        /// Проверка существует ли нужная директория
+        /// Checks if the required directory exists
         /// </summary>
         public static void ValidateDefaultPath(string path)
         {
-            // Создаем директории, если они не существуют
+            // Create directories if they do not exist
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
@@ -219,23 +217,23 @@ namespace Musical_Player.Files_management
                 Directory.CreateDirectory(Path.Combine(path, "Icons"));
             }
 
-            if (!File.Exists(Path.Combine(path, "Icons", "BlackIconSet.png")) 
-                || !File.Exists(Path.Combine(path, "Icons", "WhiteIconSet.png")) 
-                || !File.Exists(Path.Combine(path, "Icons", "WhiteBackground.png")) 
+            if (!File.Exists(Path.Combine(path, "Icons", "BlackIconSet.png"))
+                || !File.Exists(Path.Combine(path, "Icons", "WhiteIconSet.png"))
+                || !File.Exists(Path.Combine(path, "Icons", "WhiteBackground.png"))
                 || !File.Exists(Path.Combine(path, "Icons", "BlackBackground.png")))
             {
-                DownloadIconSet();
+                DownloadMiscFiles();
             }
         }
 
         /// <summary>
-        /// Добавляет песню в плейлист новую песню из файла. Используется для Drag&Drop.
+        /// Adds a song to the playlist from a file. Used for Drag & Drop.
         /// </summary>
-        /// <param name="path">Путь к песне</param>
-        /// <param name="playlistName">Название плейлиста в который надо добавить песню</param>
+        /// <param name="path">Path to the song</param>
+        /// <param name="playlistName">Name of the playlist to which to add the song</param>
         public static void AddSong(string path, string playlistName)
         {
-            // Проверяем путь и добавляем песню в плейлист
+            // Check the path and add the song to the playlist
             if (!ValidatePath(path))
             {
                 return;
@@ -245,44 +243,44 @@ namespace Musical_Player.Files_management
         }
 
         /// <summary>
-        /// Проверка поддерживается-ли формат песни при Drag&Drop
+        /// Checks if the song format is supported for Drag & Drop
         /// </summary>
-        /// <param name="filePath">Путь к песне для проверки</param>
-        /// <returns>True если формат поддерживается. False если формат не поддерживается</returns>
+        /// <param name="filePath">Path to the song to check</param>
+        /// <returns>True if the format is supported. False if the format is not supported</returns>
         public static bool IsSupportedAudioFormat(string filePath)
         {
-            // Поддерживаемые форматы аудио
+            // Supported audio formats
             string[] supportedFormats = { ".mp3", ".wav", ".ogg" };
             string fileExtension = Path.GetExtension(filePath);
 
-            // Проверяем, есть ли расширение файла в списке поддерживаемых форматов
+            // Check if the file extension is in the list of supported formats
             return supportedFormats.Contains(fileExtension, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
-        /// Устанавливает новую стандартную директорию
+        /// Sets a new default directory path
         /// </summary>
         public static void SetNewDirectoryPath()
         {
-            // Открываем диалог выбора директории
+            // Open a directory selection dialog
             var dialog = new FolderBrowserDialog();
             DialogResult dialogResult = dialog.ShowDialog();
 
-            // Если выбрана новая директория, обновляем конфигурацию
+            // If a new directory is selected, update the configuration
             if (DialogResult.OK == dialogResult)
             {
                 var newDefaultPath = dialog.SelectedPath;
                 ValidateDefaultPath(newDefaultPath);
                 var files = Directory.GetFiles(Config.DefaultPath, "*.playlist");
 
-                // Копируем существующие файлы плейлистов в новую директорию и обновляем конфигурацию
+                // Copy existing playlist files to the new directory and update the configuration
                 foreach (var file in files)
                 {
                     File.Copy(file, Path.Combine(newDefaultPath, Path.GetFileName(file)));
                     File.Delete(file);
                 }
 
-                foreach (var image in Directory.GetFiles(Path.Combine(Config.DefaultPath, "Icons"))) 
+                foreach (var image in Directory.GetFiles(Path.Combine(Config.DefaultPath, "Icons")))
                 {
                     var imageFile = File.ReadAllLines(image);
                     File.WriteAllLines(Path.Combine(newDefaultPath, "Icons", Path.GetFileName(image)), imageFile);
@@ -293,39 +291,37 @@ namespace Musical_Player.Files_management
         }
 
         /// <summary>
-        /// Устанавливает новое изображение фона
+        /// Sets a new background image
         /// </summary>
         public static void SetNewBackgroundImage()
         {
-            // Открываем диалог выбора файла для нового фонового изображения
+            // Open a file dialog to choose a new background image
             OpenFileDialog opnFileDlg = new OpenFileDialog();
             opnFileDlg.Filter = "(png),(jpg)|*.png;*.jpg;";
 
-            // Если выбрано новое изображение, обновляем конфигурацию
+            // If a new image is chosen, update the configuration
             if (opnFileDlg.ShowDialog() == true && opnFileDlg.FileNames.Length != 0)
             {
                 Config.BackgroundImagePath = opnFileDlg.FileNames[0];
             }
         }
 
-        public static void DownloadIconSet()
+        /// <summary>
+        /// Downloads miscellaneous files
+        /// </summary>
+        public static void DownloadMiscFiles()
         {
             using (WebClient client = new WebClient())
             {
                 try
                 {
-                    // Загружаем файл по URL в указанную директорию
-                    client.DownloadFile("https://github.com/Unknownday/C-Audio-Player/blob/main/BlackIconSet.png?raw=true", Path.Combine(Config.DefaultPath, "Icons", "BlackIconSet.png"));
-                    client.DownloadFile("https://github.com/Unknownday/C-Audio-Player/blob/main/WhiteIconSet.png?raw=true", Path.Combine(Config.DefaultPath, "Icons", "WhiteIconSet.png"));
-                    client.DownloadFile("https://github.com/Unknownday/C-Audio-Player/blob/main/BlackBackground.png?raw=true", Path.Combine(Config.DefaultPath, "Icons", "BlackBackground.png"));
-                    client.DownloadFile("https://github.com/Unknownday/C-Audio-Player/blob/main/WhiteBackground.png?raw=true", Path.Combine(Config.DefaultPath, "Icons", "WhiteBackground.png"));
-
-                    Console.WriteLine("Файл успешно скачан.");
+                    // Download files from URLs to the specified directory
+                    client.DownloadFile("https://github.com/Unknownday/CS-Audio-Player/blob/Static-resources/BlackIconSet.png?raw=true", Path.Combine(Config.DefaultPath, "Icons", "BlackIconSet.png"));
+                    client.DownloadFile("https://github.com/Unknownday/CS-Audio-Player/blob/Static-resources/WhiteIconSet.png?raw=true", Path.Combine(Config.DefaultPath, "Icons", "WhiteIconSet.png"));
+                    client.DownloadFile("https://github.com/Unknownday/CS-Audio-Player/blob/Static-resources/BlackBackground.png?raw=true", Path.Combine(Config.DefaultPath, "Icons", "BlackBackground.png"));
+                    client.DownloadFile("https://github.com/Unknownday/CS-Audio-Player/blob/Static-resources/WhiteBackground.png?raw=true", Path.Combine(Config.DefaultPath, "Icons", "WhiteBackground.png"));
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Ошибка при скачивании файла: {ex.Message}");
-                }
+                catch { }
             }
         }
     }

@@ -4,47 +4,47 @@ using NAudio.Wave;
 namespace Musical_Player.Models
 {
     /// <summary>
-    /// Модель аудиоплеера
+    /// Audio player model
     /// </summary>
     public static class Player
     {
         /// <summary>
-        /// Экземпляр аудиоплеера из библиотеки NAudio
+        /// Instance of the audio player from the NAudio library
         /// </summary>
         public static WaveOutEvent AudioPlayer { get; set; } = new WaveOutEvent();
 
         /// <summary>
-        /// Экземпляр проигрывателя из библиотеки NAudio
+        /// Instance of the player from the NAudio library
         /// </summary>
         public static AudioFileReader CurrentSong { get; set; } = null;
 
         /// <summary>
-        /// Хранилище предыдущей громкости
+        /// Storage for the previous volume
         /// </summary>
         public static float AudioValueBackup { get; set; } = 0.0F;
 
         /// <summary>
-        /// Текущая громкость
+        /// Current volume
         /// </summary>
         public static float CurrentSongVolume { get; set; } = 0.5F;
 
         /// <summary>
-        /// Название текущей песни
+        /// Name of the current song
         /// </summary>
-        public static string CurrentSongName { get; set; } = "Песня не выбрана";
+        public static string CurrentSongName { get; set; } = "No song selected";
 
         /// <summary>
-        /// Выключен ли звук
+        /// Is the sound muted
         /// </summary>
         public static bool IsMuted { get; set; } = false;
 
         /// <summary>
-        /// Включено-ли автопереключение песни
+        /// Is auto-switching of songs enabled
         /// </summary>
         public static bool IsAutoSwitching { get; set; } = true;
 
         /// <summary>
-        /// Текущее состояние плеера
+        /// Current player state
         /// </summary>
         public static Enums.PlayerStates CurrentPlayerState { get; set; } = Enums.PlayerStates.Idle;
     }

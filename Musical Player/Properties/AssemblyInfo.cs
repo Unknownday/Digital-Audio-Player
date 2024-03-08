@@ -5,52 +5,50 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 
-// Общие сведения об этой сборке предоставляются следующим набором
-// набор атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
-// связанные со сборкой.
-[assembly: AssemblyTitle("Musical Player")]
-[assembly: AssemblyDescription("Музыкальный плеер")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Musical Player")]
-[assembly: AssemblyCopyright("Copyright ©  2024")]
-[assembly: AssemblyTrademark("")]
+// General information about this assembly is provided by the following set
+// of attributes. Change these attribute values to modify the information
+// associated with the assembly.
+[assembly: AssemblyTitle("Digital Audio Player")]
+[assembly: AssemblyDescription("A simple audio player written in C#")]
+[assembly: AssemblyConfiguration("Production")]
+[assembly: AssemblyCompany("Untitled Uncommercial Unknown Company Inc.")]
+[assembly: AssemblyProduct("DAP")]
+[assembly: AssemblyCopyright("Copyright UUUC Inc.© 2024")]
+[assembly: AssemblyTrademark("UNCOMMERCIAL PROJECT")]
 [assembly: AssemblyCulture("")]
 
-// Установка значения False для параметра ComVisible делает типы в этой сборке невидимыми
-// для компонентов COM. Если необходимо обратиться к типу в этой сборке через
-// из модели COM, установите атрибут ComVisible для этого типа в значение true.
+// Setting ComVisible to false makes the types in this assembly not visible
+// to COM components. If you need to access a type in this assembly from
+// COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
-//Чтобы начать создание локализуемых приложений, задайте
-//<UICulture>CultureYouAreCodingWith</UICulture> в файле .csproj
-//в <PropertyGroup>. Например, при использовании английского (США)
-//в своих исходных файлах установите <UICulture> в en-US.  Затем отмените преобразование в комментарий
-//атрибута NeutralResourceLanguage ниже.  Обновите "en-US" в
-//строка внизу для обеспечения соответствия настройки UICulture в файле проекта.
+// To begin building localizable applications, set
+// <UICulture>CultureYouAreCodingWith</UICulture> in your .csproj file
+// inside a <PropertyGroup>. For example, if you are using US English
+// in your source files, set the <UICulture> to en-US. Then uncomment
+// the NeutralResourceLanguage attribute below. Update the "en-US" in
+// the line below to match the UICulture setting in the project file.
 
 //[assembly: NeutralResourcesLanguage("en-US", UltimateResourceFallbackLocation.Satellite)]
 
-
 [assembly: ThemeInfo(
-    ResourceDictionaryLocation.None, //где расположены словари ресурсов по конкретным тематикам
-                                     //(используется, если ресурс не найден на странице,
-                                     // или в словарях ресурсов приложения)
-    ResourceDictionaryLocation.SourceAssembly //где расположен словарь универсальных ресурсов
-                                              //(используется, если ресурс не найден на странице,
-                                              // в приложении или в каких-либо словарях ресурсов для конкретной темы)
+    ResourceDictionaryLocation.None, // Where theme dictionaries are located
+                                     // (used if a resource is not found on the page,
+                                     // or in application resource dictionaries)
+    ResourceDictionaryLocation.SourceAssembly // Where the generic resource dictionary is located
+                                              // (used if a resource is not found on the page,
+                                              // in the application, or in any theme specific resource dictionaries)
 )]
 
-
-// Сведения о версии для сборки включают четыре следующих значения:
+// Version information for an assembly consists of the following four values:
 //
-//      Основной номер версии
-//      Дополнительный номер версии
-//      Номер сборки
-//      Номер редакции
+//      Major Version
+//      Minor Version 
+//      Build Number
+//      Revision
 //
-// Можно задать все значения или принять номера сборки и редакции по умолчанию 
-// используя "*", как показано ниже:
+// You can specify all the values or you can default the Build and Revision Numbers
+// by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.0.0.1")]
 [assembly: AssemblyFileVersion(Config.VERSION)]

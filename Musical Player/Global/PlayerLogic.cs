@@ -1,54 +1,46 @@
 ﻿using Musical_Player.Files_management;
-using Musical_Player.Models;
-using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Shapes;
 using Path = System.IO.Path;
 
 namespace Musical_Player.Global
 {
     /// <summary>
-    /// Главная логика плеера
+    /// Main logic for the player
     /// </summary>
     public static class PlayerLogic
     {
-
         /// <summary>
-        /// Возвращает отформатированное время для надписи со временем
+        /// Returns formatted time for the time label
         /// </summary>
-        /// <param name="currMinutes">Текущая минута играющей песни</param>
-        /// <param name="currSeconds">Текущая секунда играющей песни</param>
-        /// <param name="totMinutes">Целых минут в песне</param>
-        /// <param name="totSeconds">Количество секунд в песне</param>
-        /// <returns>Отформатированную строку со временем песни, готовую для использования</returns>
+        /// <param name="currMinutes">Current minute of the playing song</param>
+        /// <param name="currSeconds">Current second of the playing song</param>
+        /// <param name="totMinutes">Total minutes of the song</param>
+        /// <param name="totSeconds">Total seconds of the song</param>
+        /// <returns>Formatted string with song time ready for use</returns>
         public static string GetDurationLabel(int currMinutes, int currSeconds, int totMinutes, int totSeconds)
         {
-            // Форматируем текущую и общую продолжительность песни в виде "мм:сс"
+            // Format current and total duration of the song as "mm:ss"
             string currentDuration = $"{currMinutes:D2}:{currSeconds:D2}";
             string totalDuration = $"{totMinutes:D2}:{totSeconds:D2}";
 
-            // Возвращаем строку с отформатированным временем в формате "текущая | общая"
+            // Return the string with formatted time in the format "current | total"
             return $"{currentDuration} | {totalDuration}";
         }
 
         /// <summary>
-        /// Получает названия всех песен в плейлисте
+        /// Gets the names of all songs in the playlist
         /// </summary>
-        /// <param name="playlistIndex">Индекс плейлиста</param>
-        /// <returns>Список всех песен</returns>
+        /// <param name="playlistIndex">Index of the playlist</param>
+        /// <returns>List of all song names</returns>
         public static List<string> GetAllSongs(int playlistIndex)
         {
-
-            // Читаем все строки из файла плейлиста
+            // Read all lines from the playlist file
             var songPaths = File.ReadAllLines(Config.PlaylistPaths[playlistIndex]);
 
-            // Проверяем существование каждой песни в списке, удаляем отсутствующие
+            // Check the existence of each song in the list, remove those that are missing
             for (int i = 0; i < songPaths.Length; i++)
             {
                 if (!FileManager.ValidatePath(songPaths[i]))
@@ -57,54 +49,53 @@ namespace Musical_Player.Global
                 }
             }
 
-            // Очищаем списки в Config и добавляем существующие пути и названия песен
+            // Clear the lists in Config and add existing paths and song names
             Config.SongNames.Clear();
             Config.SongPaths.Clear();
             Config.SongPaths.AddRange(songPaths);
             Config.SongNames.AddRange(songPaths.Select(songPath => Path.GetFileName(songPath)));
 
-            // Возвращаем отформатированный список названий песен
+            // Return the formatted list of song names
             return Config.SongPaths.Select((path, index) => FileManager.NameFilter($"{index + 1}. {Path.GetFileName(path)}")).ToList();
         }
 
         /// <summary>
-        /// Перемешивает песни в плейлисте
+        /// Shuffles the songs in the playlist
         /// </summary>
-        /// <param name="playlistIndex">Название плейлиста</param>
+        /// <param name="playlistIndex">Index of the playlist</param>
         public static void ShufflePlaylist(int playlistIndex)
         {
-            // Читаем все строки из файла плейлиста
+            // Read all lines from the playlist file
             var currentPlaylist = File.ReadAllLines(Config.PlaylistPaths[playlistIndex]);
 
-            // Вызываем метод Shuffle для случайного перемешивания элементов
+            // Call the Shuffle method for random shuffling of elements
             Shuffle(currentPlaylist);
 
-            // Записываем перемешанный плейлист обратно в файл
+            // Write the shuffled playlist back to the file
             File.WriteAllLines(Config.PlaylistPaths[playlistIndex], currentPlaylist);
         }
 
         /// <summary>
-        /// Случайным образом перемешивает индексы в массиве
+        /// Randomly shuffles the indices in the array
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="array">Массив для перемешивания</param>
+        /// <param name="array">Array to shuffle</param>
         public static void Shuffle<T>(T[] array)
         {
-            // Инициализируем генератор случайных чисел
+            // Initialize the random number generator
             Random random = new Random();
 
             int n = array.Length;
             for (int i = n - 1; i > 0; i--)
             {
-                // Генерируем случайный индекс
+                // Generate a random index
                 int j = random.Next(0, i + 1);
 
-                // Обмениваем значениями элементы array[i] и array[j]
+                // Swap the values of array[i] and array[j]
                 T temp = array[i];
                 array[i] = array[j];
                 array[j] = temp;
             }
         }
-
     }
 }

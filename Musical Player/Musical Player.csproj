@@ -179,8 +179,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Audio player.ico" />
     <Resource Include="Resources\LoadingLabel.png" />
+    <Resource Include="Resources\Audio player.ico" />
     <Resource Include="Resources\LoadingWindowBackground.png" />
     <Resource Include="Resources\InfoWindowBackground.png" />
     <Content Include="Libraries\NAudio.dll" />

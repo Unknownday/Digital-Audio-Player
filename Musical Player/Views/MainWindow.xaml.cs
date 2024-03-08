@@ -10,7 +10,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -19,34 +18,45 @@ using DataFormats = System.Windows.DataFormats;
 using DragEventArgs = System.Windows.DragEventArgs;
 using MessageBox = System.Windows.MessageBox;
 using Timer = System.Windows.Forms.Timer;
-using TreeView = System.Windows.Controls.TreeView;
 
 namespace MusicalPlayer
 {
     /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
+    /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Переменная для отслеживания удаления плейлиста
+        /// <summary>
+        /// Variable to track playlist deletion
+        /// </summary>
         private bool isDeleted = false;
 
-        // Переменные для отслеживания выбора плейлиста и песни
+        /// <summary>
+        /// Variable to track playlist selection
+        /// </summary>
         private bool isPlaylistChoosed = false;
+
+        /// <summary>
+        /// Variable to track song selection
+        /// </summary>
         private bool isSongChoosed = false;
 
-        // Таймер для обновления интерфейса
+        /// <summary>
+        /// Timer for updating the interface
+        /// </summary>
         private Timer durationTimer;
 
-        // Конструктор класса MainWindow
+        /// <summary>
+        /// Constructor for the MainWindow class
+        /// </summary>
         public MainWindow()
         {
-            // Инициализация компонентов программы
+            // Initialize program components
             InitializeComponent();
 
             UpdateUi();
 
-            //Установка фона окна, если путь к изображению указан
+            // Set window background if an image path is specified
             if (!string.IsNullOrEmpty(Config.BackgroundImagePath) && Config.BackgroundImagePath != "none")
             {
                 SetWindowBackground(Config.BackgroundImagePath);
@@ -56,124 +66,144 @@ namespace MusicalPlayer
                 SetWindowBackground(Path.Combine(Config.DefaultPath, "Icons", $"{Config.Theme}Background.png"));
             }
 
-            // Разрешение перетаскивания файлов
+            // Allow file dragging
             AllowDrop = true;
 
-            // Привязка функции к событию "перетаскивание файла"
+            // Attach function to the "file drop" event
             Drop += MainWindow_Drop;
 
-            // Проверка существования стандартного пути к плейлистам
+            // Check the existence of the default playlist path
             FileManager.ValidateDefaultPath(Config.DefaultPath);
 
-            // Обновление списка плейлистов
+            // Update the playlist list
             UpdatePlaylistList();
 
-            // Создание таймера для обновления интерфейса
+            // Create a timer for updating the interface
             durationTimer = new Timer();
 
-            // Привязывание события при обновлении таймера
+            // Attach event handler for timer updates
             durationTimer.Tick += new EventHandler(UpdateDuration);
 
-            // Установка интервала таймера в миллисекундах
+            // Set the timer interval in milliseconds
             durationTimer.Interval = 1;
 
-            // Запуск таймера
+            // Start the timer
             durationTimer.Start();
 
-            // Установка значения для надписи с текущей громкостью
+            // Set the value for the volume label
             VolumeLabel.Content = $"{Config.LastVolume}%";
 
-            // Установка значения для ползунка громкости
+            // Set the value for the volume slider
             VolumeSlider.Value = Config.LastVolume;
 
-            // Восстановление предыдущего плейлиста
+            // Restore the previous playlist
             PlaylistsList.SelectedIndex = Config.LastPlaylist;
 
-            Player.CurrentSongVolume = (float)(Config.LastVolume/100);
+            Player.CurrentSongVolume = (float)(Config.LastVolume / 100);
 
-            // Восстановление предыдущей песни
+            // Restore the previous song
             SongList.SelectedIndex = Config.LastSong;
         }
 
-        // Обработчик события "Drop" при перетаскивании файлов в окно
+        /// <summary>
+        /// Event handler for the "Drop" event when dragging files into the window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainWindow_Drop(object sender, DragEventArgs e)
         {
-            // Скрываем подсказку
+            // Hide the tooltip
             TipLabel.Visibility = Visibility.Hidden;
 
-            // Проверяем, выбран ли плейлист
-            if (!isPlaylistChoosed) { MessageBox.Show("Выберите плейлист сначала!", "Musical player"); return; }
+            // Check if a playlist is selected
+            if (!isPlaylistChoosed) { MessageBox.Show("Select a playlist first!", "Musical player"); return; }
 
-            // Получаем список файлов, перетащенных в окно
+            // Get the list of files dragged into the window
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-            // Проверяем, является ли каждый файл поддерживаемым аудиоформатом
+            // Check if each file is a supported audio format
             if (files.Any(file => !FileManager.IsSupportedAudioFormat(file))) { return; }
 
-            // Добавляем каждый поддерживаемый аудиофайл в выбранный плейлист
+            // Add each supported audio file to the selected playlist
             files.Where(FileManager.IsSupportedAudioFormat).ToList().ForEach(file => FileManager.AddSong(file, PlaylistsList.SelectedItem.ToString()));
 
-            // Обновляем список песен в интерфейсе
+            // Update the song list in the interface
             UpdateSongList();
         }
 
-        // Обработчик щелчка мыши на кнопке информации о программе
+        /// <summary>
+        /// Event handler for mouse click on the program info button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ProgramInfoButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Создаем и отображаем окно с информацией
+            // Create and show the information window
             var infoWindow = new InfoWindow();
             infoWindow.Show();
         }
 
-        // Обработчик щелчка мыши на кнопке отключения звука
+        /// <summary>
+        /// Event handler for mouse click on the mute button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MuteButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
             try
             {
-                // Сохраняем текущую громкость
+                // Save the current volume
                 var tempSoundValue = Player.CurrentSongVolume;
 
-                // Отключаем звук
+                // Mute the sound
                 Player.CurrentSongVolume = Player.AudioValueBackup;
 
-                // Сохраняем текущую громкость для восстановления
+                // Save the current volume for restoration
                 Player.AudioValueBackup = tempSoundValue;
 
-                // Обновляем состояние плеера
+                // Update the player state
                 Player.IsMuted = !Player.IsMuted;
 
-                // Устанавливаем значение для слайдера звука
+                // Set the value for the volume slider
                 VolumeSlider.Value = Player.CurrentSongVolume * 100;
 
-                // Устанавливаем значение для надписи громкости
+                // Set the value for the volume label
                 VolumeLabel.Content = $"{Convert.ToInt32(Math.Abs(Player.CurrentSongVolume * 100))}%";
 
-                // Устанавливаем новое значение громкости для плеера
+                // Set the new volume value for the player
                 Player.AudioPlayer.Volume = Player.CurrentSongVolume;
             }
             catch { }
         }
 
-        // Обработчик щелчка мыши на кнопке добавления плейлиста
+        /// <summary>
+        /// Event handler for mouse click on the add playlist button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AddPlaylistButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
             try
             {
-                // Создаем новый плейлист
+                // Create a new playlist
                 FileManager.CreatePlaylist();
 
-                // Обновляем список плейлистов
+                // Update the playlist list
                 UpdatePlaylistList();
             }
             catch { }
         }
 
-        // Обработчик щелчка мыши на кнопке удаления плейлиста
+        /// <summary>
+        /// Event handler for mouse click on the delete playlist button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DeletePlaylistButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
             try
             {
-                // Удаляем выбранный плейлист
+                // Delete the selected playlist
                 FileManager.DeletePlaylist(PlaylistsList.SelectedIndex);
 
                 isSongChoosed = false;
@@ -181,26 +211,30 @@ namespace MusicalPlayer
                 isDeleted = true;
                 PlaylistsList.SelectedIndex = -1;
 
-                // Обновляем список плейлистов
+                // Update the playlist list
                 UpdatePlaylistList();
             }
             catch { }
         }
 
-        // Обработчик щелчка мыши на кнопке перемещения песни вверх в очереди
+        /// <summary>
+        /// Event handler for mouse click on the move up button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MoveUpButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Проверяем, выбран ли плейлист и песня
+            // Check if a playlist and song are selected
             if (!isPlaylistChoosed || !isSongChoosed) { return; }
 
             try
             {
                 var currentIndex = SongList.SelectedIndex;
                 if (currentIndex - 1 < 0) { return; }
-                // Перемещаем песню в очереди вверх
+                // Move the song up in the queue
                 FileManager.MoveSongInQueue(SongList.SelectedIndex, PlaylistsList.SelectedIndex, Enums.MoveDirections.Up);
-               
-                // Обновляем список песен
+
+                // Update the song list
                 UpdateSongList();
 
                 SongList.SelectedIndex = currentIndex - 1;
@@ -208,20 +242,24 @@ namespace MusicalPlayer
             catch { }
         }
 
-        // Обработчик щелчка мыши на кнопке перемещения песни вниз в очереди
+        /// <summary>
+        /// Event handler for mouse click on the move down button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MoveDownButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Проверяем, выбран ли плейлист и песня
+            // Check if a playlist and song are selected
             if (!isPlaylistChoosed || !isSongChoosed) { return; }
 
             try
             {
                 var currentIndex = SongList.SelectedIndex;
                 if (currentIndex + 1 >= SongList.Items.Count) { return; }
-                // Перемещаем песню в очереди вниз
+                // Move the song down in the queue
                 FileManager.MoveSongInQueue(currentIndex, PlaylistsList.SelectedIndex, Enums.MoveDirections.Down);
 
-                // Обновляем список песен
+                // Update the song list
                 UpdateSongList();
 
                 SongList.SelectedIndex = currentIndex + 1;
@@ -229,40 +267,48 @@ namespace MusicalPlayer
             catch { }
         }
 
-        // Обработчик щелчка мыши на кнопке добавления песни в плейлист
+        /// <summary>
+        /// Event handler for mouse click on the add song button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AddSongButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Проверяем, выбран ли плейлист
+            // Check if a playlist is selected
             if (!isPlaylistChoosed) { return; }
 
             try
             {
-                // Добавляем песню в плейлист
+                // Add a song to the playlist
                 FileManager.AddSongToPlaylist(PlaylistsList.SelectedIndex);
 
-                // Обновляем список песен
+                // Update the song list
                 UpdateSongList();
             }
             catch (Exception ex)
             {
-                // Выводим сообщение об ошибке
+                // Display an error message
                 MessageBox.Show(ex.Message);
             }
         }
 
-        // Обработчик щелчка мыши на кнопке удаления песни из плейлиста
+        /// <summary>
+        /// Event handler for mouse click on the delete song button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DeleteSongButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Проверяем, выбран ли плейлист и песня
+            // Check if a playlist and song are selected
             if (!isPlaylistChoosed || !isSongChoosed) { return; }
 
             try
             {
                 var currentIndex = SongList.SelectedIndex;
-                // Удаляем выбранную песню из плейлиста
+                // Delete the selected song from the playlist
                 FileManager.DeleteSong(PlaylistsList.SelectedIndex, currentIndex);
 
-                // Обновляем список песен
+                // Update the song list
                 UpdateSongList();
 
                 SongList.SelectedIndex = currentIndex;
@@ -270,27 +316,31 @@ namespace MusicalPlayer
             catch { }
         }
 
-        // Обработчик щелчка мыши на кнопке проигрывания следующей песни
+        /// <summary>
+        /// Event handler for mouse click on the play next song button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PlayNextSongButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Проверяем, выбран ли плейлист и песня
+            // Check if a playlist and song are selected
             if (!isPlaylistChoosed || !isSongChoosed) { return; }
 
             try
             {
-                // Получаем индекс следующей песни
+                // Get the index of the next song
                 var nextIndex = SongList.SelectedIndex += 1;
 
-                // Проверяем, не выходит ли индекс за пределы списка песен
+                // Check if the index goes beyond the song list boundaries
                 if (nextIndex >= SongList.Items.Count) { SongList.SelectedIndex = 0; return; }
 
-                // Устанавливаем индекс следующей песни
+                // Set the index for the next song
                 SongList.SelectedIndex = nextIndex;
 
-                // Инициализируем и воспроизводим песню
+                // Initialize and play the song
                 InitSong(SongList.SelectedIndex);
 
-                // Обновление максимальной длины ползунка
+                // Update the maximum slider length
                 DurationSlider.Maximum = (int)Player.CurrentSong.TotalTime.TotalSeconds;
 
                 PlaySong();
@@ -298,74 +348,68 @@ namespace MusicalPlayer
             catch { }
         }
 
-        // Обработчик щелчка мыши на кнопке приостановки проигрывания
+        /// <summary>
+        /// Mouse click handler for the pause button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PauseButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Проверяем, выбран ли плейлист и песня
+            // Check if a playlist and a song are selected
             if (!isPlaylistChoosed || !isSongChoosed) { return; }
 
             try
             {
-                // Обновляем текущее состояние плеера
+                // Update the current player state
                 Player.CurrentPlayerState = PlayerStates.OnPause;
 
-                // Приостанавливаем проигрывание
+                // Pause playback
                 Player.AudioPlayer.Pause();
             }
             catch { }
         }
 
-        // Обработчик щелчка мыши на кнопке проигрывания
+        /// <summary>
+        /// Mouse click handler for the play button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PlayButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Проверяем, выбран ли плейлист и песня
+            // Check if a playlist and a song are selected
             if (!isPlaylistChoosed || !isSongChoosed) { return; }
 
             try
             {
-                // В зависимости от текущего состояния плеера выполняем соответствующие действия
+                // Depending on the current player state, perform the corresponding actions
                 switch (Player.CurrentPlayerState)
                 {
                     case PlayerStates.Idle:
-                        // Инициализируем песню
-                        InitSong(SongList.SelectedIndex);
-
-                        // Устанавливаем максимальное значение слайдера длительности равным длительности песни
-                        DurationSlider.Maximum = (int)Player.CurrentSong.TotalTime.TotalSeconds;
-
-                        // Воспроизводим песню
-                        PlaySong();
-
-                        // Обновляем надпись с названием песни
-                        SongNameLabel.Content = Player.CurrentSongName;
-
-                        // Запускаем таймер обновления интерфейса
-                        durationTimer.Start();
-                        break;
                     case PlayerStates.InProgress:
-                        // Инициализируем песню
+                        // Initialize the song
                         InitSong(SongList.SelectedIndex);
 
-                        // Устанавливаем максимальное значение слайдера длительности равным длительности песни
+                        // Set the maximum value of the duration slider equal to the song duration
                         DurationSlider.Maximum = (int)Player.CurrentSong.TotalTime.TotalSeconds;
 
-                        // Воспроизводим песню
+                        // Play the song
                         PlaySong();
 
-                        // Обновляем надпись с названием песни
+                        // Update the label with the song name
                         SongNameLabel.Content = Player.CurrentSongName;
 
-                        // Запускаем таймер обновления интерфейса
+                        // Start the interface update timer
                         durationTimer.Start();
                         break;
+
                     case PlayerStates.OnPause:
-                        // Обновляем состояние плеера
+                        // Update the player state
                         Player.CurrentPlayerState = PlayerStates.InProgress;
 
-                        // Возобновляем проигрывание песни
+                        // Resume playback of the song
                         Player.AudioPlayer.Play();
 
-                        // Запускаем таймер обновления интерфейса
+                        // Start the interface update timer
                         durationTimer.Start();
                         break;
                 }
@@ -373,27 +417,32 @@ namespace MusicalPlayer
             catch { }
         }
 
-        // Обработчик щелчка мыши на кнопке проигрывания предыдущей песни
+
+        /// <summary>
+        /// Mouse click handler for the play previous song button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PlayPreviosSongButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Проверяем, выбран ли плейлист и песня
+            // Check if a playlist and a song are selected
             if (!isPlaylistChoosed || !isSongChoosed) { return; }
 
             try
             {
-                // Получаем индекс следующей песни
+                // Get the index of the next song
                 var nextIndex = SongList.SelectedIndex -= 1;
 
-                // Проверяем, не выходит ли индекс за пределы списка песен
+                // Check if the index goes beyond the song list boundaries
                 if (nextIndex < 0) { SongList.SelectedIndex = SongList.Items.Count - 1; return; }
 
-                // Устанавливаем индекс следующей песни
+                // Set the index of the next song
                 SongList.SelectedIndex = nextIndex;
 
-                // Инициализируем и воспроизводим песню
+                // Initialize and play the song
                 InitSong(SongList.SelectedIndex);
 
-                // Обновление максимальной длины ползунка
+                // Update the maximum length of the slider
                 DurationSlider.Maximum = (int)Player.CurrentSong.TotalTime.TotalSeconds;
 
                 PlaySong();
@@ -401,236 +450,288 @@ namespace MusicalPlayer
             catch { }
         }
 
-        // Обработчик изменения выбранного плейлиста
+        /// <summary>
+        /// Selection changed event handler for updating the selected playlist
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PlaylistsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
             {
-                // Проверяем, не было ли удаления плейлиста
+                // Check if a playlist has been deleted
                 if (!isDeleted)
                 {
-                    // Проверяем, выбран ли плейлист
+                    // Check if a playlist is selected
                     if (PlaylistsList.SelectedIndex == -1) return;
 
-                    // Устанавливаем флаг выбора плейлиста
+                    // Set the playlist selection flag
                     isPlaylistChoosed = true;
 
-                    // Обновляем список песен в интерфейсе
+                    // Update the song list in the interface
                     UpdateSongList();
                 }
                 if (isDeleted)
                 {
-                    SongList.ItemsSource = null; 
+                    SongList.ItemsSource = null;
+                    isDeleted = false;
                 }
             }
             catch { }
         }
 
-        // Обработчик обновления длительности песни
+        /// <summary>
+        /// Event handler for updating the song duration
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UpdateDuration(object sender, EventArgs e)
         {
             try
             {
-                // Проверяем, установлена ли текущая песня
+                // Check if the current song is set
                 if (Player.CurrentSong != null)
                 {
-                    // Обновляем надпись с длительностью
+                    // Update the label with the duration
                     DurationLabel.Content = PlayerLogic.GetDurationLabel(Player.CurrentSong.CurrentTime.Minutes,
                             Player.CurrentSong.CurrentTime.Seconds,
                             Player.CurrentSong.TotalTime.Minutes,
                             Player.CurrentSong.TotalTime.Seconds
                         );
 
-                    // Устанавливаем значение слайдера длительности
+                    // Set the value of the duration slider
                     DurationSlider.Value = Player.CurrentSong.CurrentTime.Seconds + 60 * Player.CurrentSong.CurrentTime.Minutes;
 
-                    // Отображаем текущий статус в заголовке окна
+                    // Display the current status in the window title
                     string playbackState = Player.CurrentPlayerState == PlayerStates.InProgress ? "▶" : "||";
                     Title = Player.IsAutoSwitching ? $"{playbackState} {Player.CurrentSongName} |⇌|" : $"{playbackState} {Player.CurrentSongName}";
 
-                    // Обновляем надпись с названием песни
+                    // Update the label with the song name
                     SongNameLabel.Content = Player.CurrentSongName;
 
-                    // Обновляем надпись с громкостью
+                    // Update the label with the volume
                     VolumeLabel.Content = $"{(int)Math.Round(Math.Abs(Player.CurrentSongVolume * 100))}%";
                 }
             }
             catch { }
         }
 
-        // Метод для воспроизведения следующей песни с учетом разрешения на автопереключение
+        /// <summary>
+        /// Method for playing the next song considering auto-switching permission
+        /// </summary>
+        /// <param name="Allow">Is autoswitching enabled</param>
         private void PlayNextTrack(bool Allow)
         {
-            // Проверка, включено ли автовоспроизведение следующей песни
+            // Check if auto-play of the next song is enabled
             if (!Allow) { return; }
 
-            // Остановка таймера обновления интерфейса
+            // Stop the interface update timer
             durationTimer.Stop();
 
-            // Обнуление ползунка продолжительности песни
+            // Reset the duration slider
             DurationSlider.Value = 0;
 
-            // Инициализация переменной эмулирующей следующий индекс
+            // Initialize a variable simulating the next index
             int nextIndex = SongList.SelectedIndex + 1;
 
-            // Обработка исключений
+            // Exception handling
             if (nextIndex > Config.SongPaths.Count || nextIndex > SongList.Items.Count || nextIndex == -1) { return; }
 
-            // Инициализация новой песни
+            // Initialize a new song
             InitSong(nextIndex);
 
-            // Обновление максимальной длины ползунка
+            // Update the maximum length of the slider
             DurationSlider.Maximum = (int)Player.CurrentSong.TotalTime.TotalSeconds;
 
-            // Запуск песни
+            // Start playing the song
             PlaySong();
 
-            // Обновление надписи с названием песни
+            // Update the label with the song name
             SongNameLabel.Content = Player.CurrentSongName;
 
-            // Увеличение индекса в списке песен
+            // Increase the index in the song list
             SongList.SelectedIndex += 1;
 
-            // Запуск таймера обновления интерфейса
+            // Start the interface update timer
             durationTimer.Start();
         }
 
-        // Обработчик события перемещения ползунка продолжительности
+        /// <summary>
+        /// Event handler for the drag delta of the duration slider
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Slider_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            // Обновление текущего времени плеера
+            // Update the current player time
             Player.CurrentSong.CurrentTime = TimeSpan.FromSeconds(DurationSlider.Value);
         }
 
-        // Обработчик изменения значения ползунка продолжительности
+        // Event handler for the duration slider value change
         private void DurationBarSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            // Проверка на окончание песни, чтобы не запустить новую, пока играет старая
+            // Check for the end of the song to avoid starting a new one while the old one is playing
             if (DurationSlider.Value == DurationSlider.Maximum)
             {
-                // Автоматический запуск следующей песни
+                // Automatically play the next song
                 PlayNextTrack(Player.IsAutoSwitching);
             }
         }
 
-        // Метод для инициализации песни по указанному индексу
+        /// <summary>
+        /// Method to initialize a song at the specified index
+        /// </summary>
+        /// <param name="songIndex">Index of song to init</param>
         public void InitSong(int songIndex)
         {
-            // Проверка, существует ли песня по указанному пути, чтобы избежать исключения NullReferenceException
+            // Check if the song at the specified path exists to avoid NullReferenceException
             if (!FileManager.ValidatePath(Config.SongPaths[songIndex])) return;
 
-            // Остановка проигрывания
+            // Stop playback
             Player.AudioPlayer.Stop();
 
-            // Переопределение песни в модели плеера
+            // Redefine the song in the player model
             Player.CurrentSong = new AudioFileReader(Config.SongPaths[songIndex]);
 
-            // Инициализация плеера в проигрывателе
+            // Initialize the player in the audio player
             Player.AudioPlayer.Init(Player.CurrentSong);
 
-            // Очистка названия песни от расширения и запись в модель плеера
+            // Clear the song name from the extension and write it to the player model
             Player.CurrentSongName = FileManager.NameFilter(Config.SongNames[songIndex]);
         }
 
-        // Статический метод для воспроизведения песни
+        /// <summary>
+        /// Static method for playing a song
+        /// </summary>
         public static void PlaySong()
         {
-            // Остановка проигрывания песни
+            // Stop playing the current song
             Player.AudioPlayer.Stop();
 
-            // Проверка, не является ли песня null для избежания исключения NullReferenceException
+            // Check if the song is not null to avoid NullReferenceException
             if (Player.CurrentSong == null) { return; }
 
-            // Обновление статуса плеера
+            // Update the player status
             Player.CurrentPlayerState = PlayerStates.InProgress;
 
-            // Запуск проигрывания песни
+            // Start playing the song
             Player.AudioPlayer.Play();
         }
 
-        // Обработчик изменения выбранной песни в списке
+        /// <summary>
+        /// Selection changed event handler for updating the selected song in the list
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SongList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Проверка, не выходит ли песня за границы массива с песнями
+            // Check if the song index is within the song array boundaries
             if (SongList.SelectedIndex == -1 || SongList.SelectedIndex > SongList.Items.Count || !isPlaylistChoosed) return;
 
-            // Подтверждение, что песня выбрана
+            // Confirm that a song is selected
             isSongChoosed = true;
         }
 
-        // Обработчик клика по кнопке перемешивания плейлиста
+        /// <summary>
+        /// Click handler for the playlist shuffle button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ShuffeButton_Click(object sender, RoutedEventArgs e)
         {
-            // Проверка, выбран ли плейлист для избежания исключения
+            // Check if a playlist is selected to avoid an exception
             if (!isPlaylistChoosed) { return; }
 
-            // Перемешивание плейлиста
+            // Shuffle the playlist
             PlayerLogic.ShufflePlaylist(PlaylistsList.SelectedIndex);
 
-            // Обновление списка песен
+            // Update the song list
             UpdateSongList();
         }
 
-        // Обработчик события перетаскивания объектов в окно
+        /// <summary>
+        /// Drag enter event handler for updating the visibility of the hint label
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_DragEnter(object sender, DragEventArgs e)
         {
-            // Обновление видимости надписи с подсказкой
+            // Update the visibility of the hint label
             TipLabel.Visibility = Visibility.Visible;
         }
 
-        // Обработчик события окончания перетаскивания объектов в окно
+        /// <summary>
+        /// Drag leave event handler for updating the visibility of the hint label
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_DragLeave(object sender, DragEventArgs e)
         {
-            // Обновление видимости надписи с подсказкой
+            // Update the visibility of the hint label
             TipLabel.Visibility = Visibility.Hidden;
         }
 
-        // Обработчик изменения значения ползунка громкости
+        /// <summary>
+        /// Handler for changing the volume slider value
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void audioBarSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             try
             {
-                // Сохранение текущей громкости
+                // Save the current volume
                 Player.CurrentSongVolume = (float)(VolumeSlider.Value / 100);
 
-                // Присвоение нового значения громкости плееру
+                // Assign the new volume value to the player
                 Player.AudioPlayer.Volume = Player.CurrentSongVolume;
 
                 if (VolumeLabel != null)
                 {
-                    // Обновление надписи содержащей громкость плеера
+                    // Update the label containing the player volume
                     VolumeLabel.Content = $"{(int)Math.Round(Math.Abs(Player.CurrentSongVolume * 100))}%";
                 }
             }
             catch { }
         }
 
-        // Обработчик события закрытия окна
+        /// <summary>
+        /// Handler for window closing event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Сохранение конфига
+            // Save the configuration
             ConfigManager.SaveConfig(PlaylistsList.SelectedIndex, SongList.SelectedIndex, (int)VolumeSlider.Value);
         }
 
-        // Метод для установки изображения в качестве фона окна
+        /// <summary>
+        /// Method to set an image as the window background
+        /// </summary>
+        /// <param name="path"></param>
         private void SetWindowBackground(string path)
         {
-            // Создание ImageBrush
+            // Create ImageBrush
             ImageBrush imageBrush = new ImageBrush();
 
-            // Создание объекта BitmapImage для загрузки изображения
+            // Create a BitmapImage object to load the image
             BitmapImage bitmapImage = new BitmapImage(new Uri(path));
 
-            // Установка изображения в ImageBrush
+            // Set the image in ImageBrush
             imageBrush.ImageSource = bitmapImage;
 
             imageBrush.Stretch = Stretch.UniformToFill;
 
-            // Установка ImageBrush в качестве фона для окна
+            // Set ImageBrush as the window background
             this.Background = imageBrush;
         }
 
-        // Обработчки клика по кнопке открытия настроек
+        /// <summary>
+        /// Click handler for the settings button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SettingsButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
             SettingsWindow settingsWindow = new SettingsWindow();
@@ -638,8 +739,7 @@ namespace MusicalPlayer
 
             if (result == true)
             {
-
-                //Установка фона окна, если путь к изображению указан
+                // Set the window background if the image path is specified
                 if (!string.IsNullOrEmpty(Config.BackgroundImagePath) && Config.BackgroundImagePath != "none")
                 {
                     SetWindowBackground(Config.BackgroundImagePath);
@@ -654,36 +754,47 @@ namespace MusicalPlayer
             }
         }
 
-        // Обработчик двойного нажатия на список песен
+        /// <summary>
+        /// Double-click handler for the song list
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SongList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            // Проверяем находится ли индекс в границах массива
-            if(SongList.SelectedIndex > 0 || SongList.SelectedIndex < SongList.Items.Count)
+            // Check if the index is within the array bounds
+            if (SongList.SelectedIndex >= 0 && SongList.SelectedIndex < SongList.Items.Count)
             {
-                // Инициализируем и воспроизводим песню
+                // Initialize and play the song
                 InitSong(SongList.SelectedIndex);
 
-                // Обновление максимальной длины ползунка
+                // Update the maximum length of the slider
                 DurationSlider.Maximum = (int)Player.CurrentSong.TotalTime.TotalSeconds;
                 PlaySong();
             }
         }
 
-        // Метод обновления списка песен
+        /// <summary>
+        /// Method to update the song list
+        /// </summary>
         private void UpdateSongList()
         {
             SongList.ItemsSource = PlayerLogic.GetAllSongs(PlaylistsList.SelectedIndex);
         }
 
-        // Метод обновления списка плейлистов
+        /// <summary>
+        /// Method to update the playlist list
+        /// </summary>
         private void UpdatePlaylistList()
         {
             PlaylistsList.ItemsSource = FileManager.GetPlaylists();
         }
 
-        // Обновление интерфейса
+        /// <summary>
+        /// Update the interface
+        /// </summary>
         private void UpdateUi()
-        {
+        { 
+            // Update button images based on the configured icons
             PlayButton.Source = Config.IconsMap[1].ImageSource;
             PauseButton.Source = Config.IconsMap[2].ImageSource;
             PlayNextSongButton.Source = Config.IconsMap[3].ImageSource;
@@ -698,6 +809,7 @@ namespace MusicalPlayer
             MoveUpButton.Source = Config.IconsMap[10].ImageSource;
             SettingsButton.Source = Config.IconsMap[12].ImageSource;
 
+            // Set the foreground color for various UI elements based on the configured theme color
             var color = System.Drawing.Color.FromName(Config.Theme);
             PlaylistsList.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
             SongList.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));

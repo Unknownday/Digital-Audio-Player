@@ -6,119 +6,134 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using Musical_Player.LoadingLogic;
+using System.IO;
 
 namespace Musical_Player.Views
 {
     /// <summary>
-    /// Логика взаимодействия для SettingsWindow.xaml
+    /// Interaction logic for SettingsWindow.xaml
     /// </summary>
     public partial class SettingsWindow : Window
     {
+        /// <summary>
+        /// Constructor for the SettingsWindow
+        /// </summary>
         public SettingsWindow()
         {
-            // Инициализация компонентов окна
+            // Initialize window components
             InitializeComponent();
 
-            // Устанавливаем состояние флажка автоматического переключения песен в соответствии с текущим значением в Player
+            // Set the state of the automatic song switching checkbox according to the current value in Player
             AutoSongSwitchingSelector.IsChecked = Player.IsAutoSwitching;
             SwitchThemeCheckbox.IsChecked = Config.Theme == "Black" ? true : false;
 
-            // Установка фона окна, если путь к изображению указан
+            // Set the window background if the image path is specified
             if (!string.IsNullOrEmpty(Config.BackgroundImagePath) && Config.BackgroundImagePath != "none")
             {
                 SetWindowBackground(Config.BackgroundImagePath);
             }
-            if(Config.BackgroundImagePath == "none")
+            if (Config.BackgroundImagePath == "none")
             {
-                this.Background = null;
-                this.Background = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255));
+                SetWindowBackground(Path.Combine(Config.DefaultPath, "Icons", $"{Config.Theme}Background.png"));
             }
 
             ResetBackgroundButton.Source = Config.IconsMap[6].ImageSource;
-            
+
+            var color = System.Drawing.Color.FromName(Config.Theme);
+            SwitchBackgroundButton.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
+            SwitchThemeCheckbox.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
+            AutoSongSwitchingSelector.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
+            ChooseDefaultDirButton.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
+            ChooseDefaultDirButton.BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
+            SwitchBackgroundButton.BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
+
         }
 
-        // Поле для хранения результата диалога (нажата кнопка OK или нет)
+        // Field to store the dialog result (OK button pressed or not)
         private bool Result = false;
 
-        // Обработчик события нажатия на кнопку смены фонового изображения
+        // Event handler for the SwitchBackgroundButton click event
         private void SwitchBackgroundButton_Click(object sender, RoutedEventArgs e)
         {
-            // Вызываем метод установки нового фонового изображения из класса FileManager
+            // Call the method to set a new background image from the FileManager class
             FileManager.SetNewBackgroundImage();
 
-            // Устанавливаем DialogResult в true и закрываем окно
+            // Set DialogResult to true and close the window
             Result = true;
             Close();
         }
 
-        // Обработчик события нажатия на кнопку выбора новой стандартной директории
+        // Event handler for the ChooseDefaultDirButton click event
         private void ChooseDefaultDirButton_Click(object sender, RoutedEventArgs e)
         {
-            // Вызываем метод установки новой стандартной директории из класса FileManager
+            // Call the method to set a new default directory path from the FileManager class
             FileManager.SetNewDirectoryPath();
 
-            // Устанавливаем DialogResult в true и закрываем окно
+            // Set DialogResult to true and close the window
             Result = true;
             Close();
         }
 
-        // Обработчик события изменения состояния флажка автоматического переключения песен
+        // Event handler for the AutoSongSwitchingSelector click event
         private void AutoSongSwitchingSelector_Click(object sender, RoutedEventArgs e)
         {
-            // Обновляем значение AutoSongSwitchingSelector на противоположное к текущему
+            // Update the value of AutoSongSwitchingSelector to the opposite of the current state
             AutoSongSwitchingSelector.IsChecked = !Player.IsAutoSwitching;
 
-            // Обновляем значение свойства IsAutoSwitching в Player в соответствии с состоянием флажка
+            // Update the value of the IsAutoSwitching property in Player according to the checkbox state
             Player.IsAutoSwitching = !Player.IsAutoSwitching;
         }
 
-        // Обработчик события нажатия на кнопку закрытия окна
+        // Event handler for the CloseButton click event
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            // Закрываем окно
+            // Close the window
             Close();
         }
 
-        // Обработчик события закрытия окна
+        // Event handler for the window closing event
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Устанавливаем DialogResult в соответствии с результатом
+            // Set DialogResult according to the result
             DialogResult = Result;
         }
 
-        // Метод для установки изображения в качестве фона окна
+        // Method to set an image as the window background
         private void SetWindowBackground(string path)
         {
-            // Создание ImageBrush
+            // Create ImageBrush
             ImageBrush imageBrush = new ImageBrush();
 
-            // Создание объекта BitmapImage для загрузки изображения
+            // Create a BitmapImage object to load the image
             BitmapImage bitmapImage = new BitmapImage(new Uri(path));
 
-            // Установка изображения в ImageBrush
+            // Set the image in ImageBrush
             imageBrush.ImageSource = bitmapImage;
 
             imageBrush.Stretch = Stretch.UniformToFill;
 
-            // Установка ImageBrush в качестве фона для окна
+            // Set ImageBrush as the background for the window
             this.Background = imageBrush;
         }
 
-        // Обработчик события нажатия кнопки для сброса фона плеера.
+        // Event handler for the ResetBackgroundButton mouse down event
         private void ResetBackgroundButton_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            //Устанавливает занчение для фона none
+            // Set the background value to none
             Config.BackgroundImagePath = "none";
 
-            // Устанавливаем DialogResult в true и закрываем окно
+            // Set DialogResult to true and close the window
             Result = true;
             Close();
         }
 
+        // Event handler for the SwitchThemeCheckbox click event
         private void SwitchThemeCheckbox_Click(object sender, RoutedEventArgs e)
         {
+            // Update the state of the SwitchThemeCheckbox to the opposite
             SwitchThemeCheckbox.IsChecked = !SwitchThemeCheckbox.IsChecked;
+
+            // Update the theme configuration based on the checkbox state
             if (SwitchThemeCheckbox.IsChecked == true)
             {
                 Config.Theme = "White";
@@ -128,8 +143,10 @@ namespace Musical_Player.Views
                 Config.Theme = "Black";
             }
 
+            // Recreate icons bitmap based on the updated theme
             SetupLogic.CreateIconsBitmap(Config.Theme);
 
+            // Set DialogResult to true and close the window
             Result = true;
             Close();
         }
