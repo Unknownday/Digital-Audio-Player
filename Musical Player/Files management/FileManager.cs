@@ -404,10 +404,10 @@ namespace Musical_Player.Files_management
                 try
                 {
                     // Download files from URLs to the specified directory
-                    client.DownloadFile("https://github.com/Unknownday/CS-Audio-Player/blob/Static-resources/BlackIconSet.png?raw=true", Path.Combine(Config.DefaultPath, "Icons", "BlackIconSet.png"));
-                    client.DownloadFile("https://github.com/Unknownday/CS-Audio-Player/blob/Static-resources/WhiteIconSet.png?raw=true", Path.Combine(Config.DefaultPath, "Icons", "WhiteIconSet.png"));
-                    client.DownloadFile("https://github.com/Unknownday/CS-Audio-Player/blob/Static-resources/BlackBackground.png?raw=true", Path.Combine(Config.DefaultPath, "Icons", "BlackBackground.png"));
-                    client.DownloadFile("https://github.com/Unknownday/CS-Audio-Player/blob/Static-resources/WhiteBackground.png?raw=true", Path.Combine(Config.DefaultPath, "Icons", "WhiteBackground.png"));
+                    client.DownloadFile("https://sharedby.blomp.com/Jrcdqf", Path.Combine(Config.DefaultPath, "Icons", "BlackIconSet.png"));
+                    client.DownloadFile("https://sharedby.blomp.com/6nEIsE", Path.Combine(Config.DefaultPath, "Icons", "WhiteIconSet.png"));
+                    client.DownloadFile("https://sharedby.blomp.com/6XyxQT", Path.Combine(Config.DefaultPath, "Icons", "BlackBackground.png"));
+                    client.DownloadFile("https://sharedby.blomp.com/6dxQGn", Path.Combine(Config.DefaultPath, "Icons", "WhiteBackground.png"));
                 }
                 catch { }
             }
