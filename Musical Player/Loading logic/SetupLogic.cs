@@ -10,6 +10,9 @@ using System.Net;
 
 namespace Musical_Player.LoadingLogic
 {
+    /// <summary>
+    /// Programm setup logic
+    /// </summary>
     public static class SetupLogic
     {
         /// <summary>

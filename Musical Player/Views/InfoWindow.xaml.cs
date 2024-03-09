@@ -8,6 +8,9 @@ namespace Musical_Player.Views
     /// </summary>
     public partial class InfoWindow : Window
     {
+        /// <summary>
+        /// InfoWindow constructor
+        /// </summary>
         public InfoWindow()
         {
             InitializeComponent();
