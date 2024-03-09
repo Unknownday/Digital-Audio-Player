@@ -112,7 +112,7 @@ namespace Musical_Player.Files_management
             }
         }
 
-        //// <summary>
+        /// <summary>
         /// Deletes a song from the playlist
         /// </summary>
         /// <param name="playlistName">Playlist name</param>
@@ -295,7 +295,7 @@ namespace Musical_Player.Files_management
         }
 
         /// <summary>
-        /// Adds a song to the playlist from a file. Used for Drag & Drop.
+        /// Adds a song to the playlist from a file. Used for Drag and Drop.
         /// </summary>
         /// <param name="path">Path to the song</param>
         /// <param name="playlistName">Name of the playlist to which to add the song</param>
@@ -332,7 +332,7 @@ namespace Musical_Player.Files_management
         }
 
         /// <summary>
-        /// Checks if the song format is supported for Drag & Drop
+        /// Checks if the song format is supported for Drag and Drop
         /// </summary>
         /// <param name="filePath">Path to the song to check</param>
         /// <returns>True if the format is supported. False if the format is not supported</returns>
