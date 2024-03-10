@@ -99,7 +99,7 @@ namespace MusicalPlayer
             VolumeSlider.Value = Config.LastVolume;
 
             // Set the value for the volume label
-            VolumeLabel.Content = $"{Config.LastVolume}%";
+            //VolumeLabel.Content = $"{Config.LastVolume}%";
 
             // Restore the previous playlist
             PlaylistsList.SelectedIndex = Config.LastPlaylist;
