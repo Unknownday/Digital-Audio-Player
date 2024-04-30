@@ -144,7 +144,7 @@ namespace Musical_Player.Views
             }
 
             // Recreate icons bitmap based on the updated theme
-            SetupLogic.CreateIconsBitmap(Config.Theme);
+            SetupLogic.CreateIconsBitmap();
 
             // Set DialogResult to true and close the window
             Result = true;

@@ -262,37 +262,7 @@ namespace Musical_Player.Files_management
             return File.Exists(path);
         }
 
-        /// <summary>
-        /// Checks if the required directory exists
-        /// </summary>
-        public static void ValidateDefaultPath(string path)
-        {
-            // Create directories if they do not exist
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
 
-            if (!File.Exists(Path.Combine(Config.DefaultPath, "Playlists.xml")))
-            {
-                XElement playlistsElement = new XElement("playlists");
-                XDocument xDocument = new XDocument(playlistsElement);
-                xDocument.Save(Path.Combine(Config.DefaultPath, "Playlists.xml"));
-            }
-
-            if (!Directory.Exists(Path.Combine(path, "Icons")))
-            {
-                Directory.CreateDirectory(Path.Combine(path, "Icons"));
-            }
-
-            if (!File.Exists(Path.Combine(path, "Icons", "BlackIconSet.png"))
-                || !File.Exists(Path.Combine(path, "Icons", "WhiteIconSet.png"))
-                || !File.Exists(Path.Combine(path, "Icons", "WhiteBackground.png"))
-                || !File.Exists(Path.Combine(path, "Icons", "BlackBackground.png")))
-            {
-                DownloadMiscFiles();
-            }
-        }
 
         /// <summary>
         /// Adds a song to the playlist from a file. Used for Drag and Drop.
@@ -359,7 +329,6 @@ namespace Musical_Player.Files_management
             if (DialogResult.OK == dialogResult)
             {
                 var newDefaultPath = dialog.SelectedPath;
-                ValidateDefaultPath(newDefaultPath);
                 var files = Directory.GetFiles(Config.DefaultPath, "*.playlist");
 
                 // Copy existing playlist files to the new directory and update the configuration
@@ -392,25 +361,6 @@ namespace Musical_Player.Files_management
             if (opnFileDlg.ShowDialog() == true && opnFileDlg.FileNames.Length != 0)
             {
                 Config.BackgroundImagePath = opnFileDlg.FileNames[0];
-            }
-        }
-
-        /// <summary>
-        /// Downloads miscellaneous files
-        /// </summary>
-        public static void DownloadMiscFiles()
-        {
-            using (WebClient client = new WebClient())
-            {
-                try
-                {
-                    // Download files from URLs to the specified directory
-                    client.DownloadFile("https://sharedby.blomp.com/Jrcdqf", Path.Combine(Config.DefaultPath, "Icons", "BlackIconSet.png"));
-                    client.DownloadFile("https://sharedby.blomp.com/6nEIsE", Path.Combine(Config.DefaultPath, "Icons", "WhiteIconSet.png"));
-                    client.DownloadFile("https://sharedby.blomp.com/6XyxQT", Path.Combine(Config.DefaultPath, "Icons", "BlackBackground.png"));
-                    client.DownloadFile("https://sharedby.blomp.com/6dxQGn", Path.Combine(Config.DefaultPath, "Icons", "WhiteBackground.png"));
-                }
-                catch { }
             }
         }
 

@@ -1,9 +1,9 @@
-﻿<Application x:Class="MusicalPlayer.App"
+﻿<Application x:Class="Player_Loader.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:MusicalPlayer"
+             xmlns:local="clr-namespace:Player_Loader"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
-        
+         
     </Application.Resources>
 </Application>

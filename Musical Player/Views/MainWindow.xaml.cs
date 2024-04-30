@@ -1,10 +1,13 @@
-﻿using Musical_Player.Config_management;
+﻿using Microsoft.Win32;
+using Musical_Player.Config_management;
 using Musical_Player.Files_management;
 using Musical_Player.Global;
+using Musical_Player.LoadingLogic;
 using Musical_Player.Models;
 using Musical_Player.Views;
 using NAudio.Wave;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -58,6 +61,17 @@ namespace MusicalPlayer
         {
             // Initialize program components
             InitializeComponent();
+            Dictionary<string, string> keys = new Dictionary<string, string>();
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\DigitalAudioPlayer\PlayerConfig"))
+            {
+                    keys.Add("DefaultPath", key.GetValue("DefaultPath") as string);
+                    keys.Add("Background", key.GetValue("Background") as string);
+            }
+
+            Config.DefaultPath = keys["DrafultPath"] == null ? "C:\\Digital Audio Player\\" : keys["Background"];
+            Config.BackgroundImagePath = keys["Background"] == "none" ? "none" : keys["Background"];
+
+            SetupLogic.CreateIconsBitmap();
 
             UpdateUi();
 
@@ -76,9 +90,6 @@ namespace MusicalPlayer
 
             // Attach function to the "file drop" event
             Drop += MainWindow_Drop;
-
-            // Check the existence of the default playlist path
-            FileManager.ValidateDefaultPath(Config.DefaultPath);
 
             // Update the playlist list
             UpdatePlaylistList();

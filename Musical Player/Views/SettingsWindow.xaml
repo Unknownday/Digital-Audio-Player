@@ -5,13 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Musical_Player.Views"
         mc:Ignorable="d"
-        Title="Digital Audio Player Settings" Height="205" Width="452" ResizeMode="NoResize" Closing="Window_Closing" Background="{x:Null}">
+        Title="Digital Audio Player Settings" Height="500" Width="452" ResizeMode="NoResize" Closing="Window_Closing" Background="{x:Null}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50*"/>
             <RowDefinition Height="50*"/>
             <RowDefinition Height="50*"/>
-            <RowDefinition Height="55*"/>
+            <RowDefinition Height="50*"/>
+            <RowDefinition Height="50*"/>
+            <RowDefinition Height="50*"/>
+            <RowDefinition Height="50*"/>
+            <RowDefinition Height="255*"/>
         </Grid.RowDefinitions>
 
         <!-- Auto song switching toggle -->
@@ -27,6 +31,9 @@
         <Image x:Name="ResetBackgroundButton" HorizontalAlignment="Left" Height="25" Width="25" Margin="384,0,0,0" VerticalAlignment="Center" Grid.Row="2" MouseDown="ResetBackgroundButton_MouseDown"/>
 
         <!-- Checkbox to enable light theme -->
-        <CheckBox x:Name="SwitchThemeCheckbox" Content="Enable Light Theme" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center" FontFamily="DejaVu Sans" FontSize="16" Click="SwitchThemeCheckbox_Click" Background="White" Foreground="White"/>
+        <CheckBox x:Name="SwitchThemeCheckbox" Content="Enable Light Theme" HorizontalAlignment="Left" Grid.Row="3" VerticalAlignment="Center" FontFamily="DejaVu Sans" FontSize="16" Click="SwitchThemeCheckbox_Click" Background="White" Foreground="White" Margin="10,0,0,0"/>
+
+        <RadioButton x:Name="EnableColorTheme" Content="Enable custom theme" HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="DejaVu Sans" FontSize="18" Height="20" Click="AutoSongSwitchingSelector_Click" Foreground="White" Grid.Row="4" Margin="10,0,0,0"/>
+        <Border BorderBrush="Black" BorderThickness="1" Grid.Row="7" Margin="10"/>
     </Grid>
 </Window>
