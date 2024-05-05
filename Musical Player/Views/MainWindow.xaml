@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MusicalPlayer"
         mc:Ignorable="d"
-        Title="Digital Audio Player" Height="704" Width="1200" ResizeMode="NoResize" DragEnter="Window_DragEnter" DragLeave="Window_DragLeave" Closing="Window_Closing">
+        Title="Digital Audio Player" Height="704" Width="1200" ResizeMode="NoResize" DragEnter="Window_DragEnter" DragLeave="Window_DragLeave" Closing="Window_Closing" ContentRendered="Window_ContentRendered">
     <Grid>
         <!-- Program information button -->
         <Image Height="24" Width="24" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="ProgramInfoButton" MouseDown="ProgramInfoButton_MouseDown" Margin="10,6,0,0"/>

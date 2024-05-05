@@ -91,9 +91,6 @@ namespace MusicalPlayer
             // Attach function to the "file drop" event
             Drop += MainWindow_Drop;
 
-            // Update the playlist list
-            UpdatePlaylistList();
-
             // Create a timer for updating the interface
             durationTimer = new Timer();
 
@@ -108,17 +105,6 @@ namespace MusicalPlayer
 
             // Set the value for the volume slider
             VolumeSlider.Value = Config.LastVolume;
-
-            // Set the value for the volume label
-            //VolumeLabel.Content = $"{Config.LastVolume}%";
-
-            // Restore the previous playlist
-            PlaylistsList.SelectedIndex = Config.LastPlaylist;
-
-            Player.CurrentSongVolume = (float)(Config.LastVolume / 100);
-
-            // Restore the previous song
-            SongList.SelectedIndex = Config.LastSong;
         }
 
         /// <summary>
@@ -890,6 +876,28 @@ namespace MusicalPlayer
             FileManager.RenamePlaylist(PlaylistsList.SelectedItem.ToString());
 
             UpdatePlaylistList();
+        }
+        
+        /// <summary>
+        /// Handler used once only for restore last settings
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_ContentRendered(object sender, EventArgs e)
+        {
+            // Update the playlist list
+            UpdatePlaylistList();
+
+            // Set the value for the volume label
+            VolumeLabel.Content = $"{Config.LastVolume}%";
+
+            // Restore the previous playlist
+            PlaylistsList.SelectedIndex = Config.LastPlaylist;
+
+            Player.CurrentSongVolume = (float)(Config.LastVolume / 100);
+
+            // Restore the previous song
+            SongList.SelectedIndex = Config.LastSong;
         }
     }
 }
