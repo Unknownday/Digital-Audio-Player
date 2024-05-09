@@ -37,7 +37,7 @@ namespace Player_Loader
 
             string appPath = @"Musical Player.exe";
 
-            string arguments = $"-voice {cfg.LastVolumeAmount} -song {cfg.LastSongIndex} -playlist {cfg.LastPlaylistIndex} -theme {cfg.Theme}";
+            string arguments = $"-voice {cfg.LastVolumeAmount} -song {cfg.LastSongIndex} -playlist {cfg.LastPlaylistIndex} -theme {cfg.Theme} -auto_switching {cfg.IsAutoSwitching}";
 
             Process.Start(appPath, arguments);
 

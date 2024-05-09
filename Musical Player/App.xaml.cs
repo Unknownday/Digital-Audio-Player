@@ -37,23 +37,18 @@ namespace MusicalPlayer
                         {
                             case "-voice":
                                 Config.LastVolume = Convert.ToInt32(value);
-                                MessageBox.Show(value);
                                 break;
                             case "-song":
                                 Config.LastSong = Convert.ToInt32(value);
-                                MessageBox.Show(value);
                                 break;
                             case "-playlist":
                                 Config.LastPlaylist = Convert.ToInt32(value);
-                                MessageBox.Show(value);
                                 break;
                             case "-auto_switching":
                                 Player.IsAutoSwitching = bool.Parse(value);
-                                MessageBox.Show(value);
                                 break;
                             case "-theme":
                                 Config.Theme = value;
-                                MessageBox.Show(value);
                                 break;
                             default:
 

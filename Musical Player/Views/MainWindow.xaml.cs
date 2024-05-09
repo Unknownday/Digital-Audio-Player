@@ -4,12 +4,15 @@ using Musical_Player.Files_management;
 using Musical_Player.Global;
 using Musical_Player.LoadingLogic;
 using Musical_Player.Models;
+using Musical_Player.ViewModels;
 using Musical_Player.Views;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -54,6 +57,10 @@ namespace MusicalPlayer
         /// </summary>
         public bool isRepeating = false;
 
+        private bool restored = false;
+
+        public List<string> Playlists { get; set; }
+
         /// <summary>
         /// Constructor for the MainWindow class
         /// </summary>
@@ -61,18 +68,36 @@ namespace MusicalPlayer
         {
             // Initialize program components
             InitializeComponent();
+
+            // Preparing programm to work
+            StartupProgram();
+        }
+
+        /// <summary>
+        /// This one is used only for make code "clean"
+        /// </summary>
+        private void StartupProgram()
+        {
+            //Creating the temple keys dictionary
             Dictionary<string, string> keys = new Dictionary<string, string>();
+
+            //Reading the part of config which storaged in registry
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\DigitalAudioPlayer\PlayerConfig"))
             {
-                    keys.Add("DefaultPath", key.GetValue("DefaultPath") as string);
-                    keys.Add("Background", key.GetValue("Background") as string);
+                keys.Add("DefaultPath", key.GetValue("DefaultPath") as string);
+                keys.Add("Background", key.GetValue("Background") as string);
             }
 
-            Config.DefaultPath = keys["DrafultPath"] == null ? "C:\\Digital Audio Player\\" : keys["Background"];
+            //Updating the default programm path
+            Config.DefaultPath = keys["DefaultPath"] == null ? "C:\\Digital Audio Player\\" : keys["DefaultPath"];
+
+            //Updating the default programm background image path
             Config.BackgroundImagePath = keys["Background"] == "none" ? "none" : keys["Background"];
 
+            //Creating icon dictionary from image
             SetupLogic.CreateIconsBitmap();
 
+            //Updating graphical interface
             UpdateUi();
 
             // Set window background if an image path is specified
@@ -85,6 +110,8 @@ namespace MusicalPlayer
                 SetWindowBackground(Path.Combine(Config.DefaultPath, "Icons", $"{Config.Theme}Background.png"));
             }
 
+            MainWindowViewModel mainWindowViewModel = new MainWindowViewModel();
+
             // Allow file dragging
             AllowDrop = true;
 
@@ -92,20 +119,45 @@ namespace MusicalPlayer
             Drop += MainWindow_Drop;
 
             // Create a timer for updating the interface
-            durationTimer = new Timer();
-
-            // Attach event handler for timer updates
-            durationTimer.Tick += new EventHandler(UpdateDuration);
-
-            // Set the timer interval in milliseconds
-            durationTimer.Interval = 1;
+            durationTimer = CreateTimer(new EventHandler(UpdateDuration));
 
             // Start the timer
             durationTimer.Start();
 
+            // Restore the previous playlist
+            PlaylistsList.SelectedIndex = Config.LastPlaylist;
+
+            // Restore the previous song
+            SongList.SelectedIndex = Config.LastSong;
+
             // Set the value for the volume slider
             VolumeSlider.Value = Config.LastVolume;
         }
+
+        /// <summary>
+        /// Function is used for create timer
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <returns></returns>
+        private Timer CreateTimer(EventHandler handler)
+        {
+            var timer = new Timer();
+
+            // Set the timer interval in milliseconds
+            timer.Interval = 1;
+
+            // Set timer to be enabled
+            timer.Enabled = true;
+
+            // Set timer tag
+            timer.Tag = "Duration Timer";
+
+            // Attach event handler for timer updates
+            timer.Tick += new EventHandler(handler);
+
+            // Return new timer;
+            return timer;
+        } 
 
         /// <summary>
         /// Event handler for the "Drop" event when dragging files into the window
@@ -802,8 +854,13 @@ namespace MusicalPlayer
         private void UpdateSongList()
         {
             int lastIndex = SongList.SelectedIndex;
-            SongList.ItemsSource = null;
-            SongList.ItemsSource = PlayerLogic.GetAllSongs(PlaylistsList.SelectedItem.ToString());
+
+            var ViewModelInstance = MainWindowViewModel.Instance;
+
+            ViewModelInstance.UpdateSongs(PlayerLogic.GetAllSongs(PlaylistsList.SelectedItem.ToString()));
+
+            this.DataContext = ViewModelInstance;
+
             SongList.SelectedIndex = lastIndex;
         }
 
@@ -813,8 +870,13 @@ namespace MusicalPlayer
         private void UpdatePlaylistList()
         {
             int lastIndex = PlaylistsList.SelectedIndex;
-            PlaylistsList.ItemsSource = null;
-            PlaylistsList.ItemsSource = FileManager.GetPlaylists();
+
+            var ViewModelInstance = MainWindowViewModel.Instance;
+
+            ViewModelInstance.UpdatePlaylist(FileManager.GetPlaylists());
+
+            this.DataContext = ViewModelInstance;
+
             PlaylistsList.SelectedIndex = lastIndex;
         }
 
@@ -822,8 +884,22 @@ namespace MusicalPlayer
         /// Update the interface
         /// </summary>
         private void UpdateUi()
-        { 
+        {
             // Update button images based on the configured icons
+            // 1 - Play button icon
+            // 2 - Pause button icon
+            // 3 - Select next button icon
+            // 4 - Select previos button icon
+            // 5 - Delete button icon
+            // 6 - Uneeded icon
+            // 7 - Info button icon
+            // 8 - Add(Just a simple "plus" symbol) button icon
+            // 9 - Disable song button icon
+            // 10 - Move up(arrow directed up) button icon
+            // 11 - Move down(arrow directed down) button icon
+            // 12 - Settings button icon
+            // 13 - Infinity repeat button icon
+            // 14 - Rename playlist button icon
             PlayButton.Source = Config.IconsMap[1].ImageSource;
             PauseButton.Source = Config.IconsMap[2].ImageSource;
             PlayNextSongButton.Source = Config.IconsMap[3].ImageSource;
@@ -873,8 +949,10 @@ namespace MusicalPlayer
         /// <param name="e"></param>
         private void RenamePlaylistButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            //Renaming playlist 
             FileManager.RenamePlaylist(PlaylistsList.SelectedItem.ToString());
 
+            //Updating playlists
             UpdatePlaylistList();
         }
         
@@ -885,19 +963,20 @@ namespace MusicalPlayer
         /// <param name="e"></param>
         private void Window_ContentRendered(object sender, EventArgs e)
         {
-            // Update the playlist list
+            //Update the playlist list
             UpdatePlaylistList();
-
-            // Set the value for the volume label
+            
+            //Set the value for the volume label
             VolumeLabel.Content = $"{Config.LastVolume}%";
-
-            // Restore the previous playlist
-            PlaylistsList.SelectedIndex = Config.LastPlaylist;
-
+            
+            //Restore last song volume
             Player.CurrentSongVolume = (float)(Config.LastVolume / 100);
+        }
 
-            // Restore the previous song
-            SongList.SelectedIndex = Config.LastSong;
+        private void PlaylistsList_Loaded(object sender, RoutedEventArgs e)
+        {
+            PlaylistsList.SelectedIndex = Config.LastPlaylist;
+            MessageBox.Show("Loaded");
         }
     }
 }

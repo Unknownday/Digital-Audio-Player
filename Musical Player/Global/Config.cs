@@ -6,67 +6,67 @@ using System.Windows.Media;
 namespace Musical_Player.Global
 {
     /// <summary>
-    /// Programm configuration file
+    /// Programm configuration file.
     /// </summary>
     public static class Config
     {
         /// <summary>
-        /// List of paths to songs
+        /// List of paths to songs.
         /// </summary>
         public static List<string> SongPaths { get; set; } = new List<string>();
 
         /// <summary>
-        /// List of paths to playlists
+        /// List of paths to playlists.
         /// </summary>
         public static List<string> PlaylistPaths { get; set; } = new List<string>();
 
         /// <summary>
-        /// List of song names
+        /// List of song names.
         /// </summary>
         public static List<string> SongNames { get; set; } = new List<string>();
 
         /// <summary>
-        /// Dictionary mapping integers to ImageBrush objects
+        /// Dictionary mapping integers to ImageBrush objects.
         /// </summary>
         public static Dictionary<int, ImageBrush> IconsMap { get; set; }
 
         /// <summary>
-        /// Dictionary mapping playlist(name) to List of the songs(models)
+        /// Dictionary mapping playlist(name) to List of the songs(models).
         /// </summary>
         public static Dictionary<string, List<SongModel>> PlaylistToSongListMap { get; set; } = new Dictionary<string, List<SongModel>>();
 
         /// <summary>
-        /// Default path to the directory where playlists are stored
+        /// Default path to the directory where playlists are stored.
         /// </summary>
-        public static string DefaultPath { get; set; } = @"C:\\Digital audio player\";
+        public static string DefaultPath { get; set; } = null;
 
         /// <summary>
-        /// Path to the background image
+        /// Path to the background image.
         /// </summary>
         public static string BackgroundImagePath { get; set; } = "none";
 
         /// <summary>
-        /// Index of the last selected playlist
+        /// Index of the last selected playlist.
         /// </summary>
         public static int LastPlaylist { get; set; } = -1;
 
         /// <summary>
-        /// Index of the last selected song
+        /// Index of the last selected song.
         /// </summary>
         public static int LastSong { get; set; } = -1;
 
         /// <summary>
-        /// Last volume level
+        /// Last volume level.
         /// </summary>
         public static int LastVolume { get; set; } = 50;
 
         /// <summary>
-        /// Theme color setting
+        /// Theme color setting.
         /// </summary>
         public static string Theme { get; set; } = "Black";
 
         /// <summary>
-        /// Constant representing the version number
+        /// Constant representing the version number.
         /// </summary>
         public const string VERSION = "1.0.5.2";
     }

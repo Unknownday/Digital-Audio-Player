@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MusicalPlayer"
         mc:Ignorable="d"
-        Title="Digital Audio Player" Height="704" Width="1200" ResizeMode="NoResize" DragEnter="Window_DragEnter" DragLeave="Window_DragLeave" Closing="Window_Closing" ContentRendered="Window_ContentRendered">
+        Title="Digital Audio Player" Height="704" Width="1200" ResizeMode="CanMinimize" DragEnter="Window_DragEnter" DragLeave="Window_DragLeave" Closing="Window_Closing" ContentRendered="Window_ContentRendered">
     <Grid>
         <!-- Program information button -->
         <Image Height="24" Width="24" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="ProgramInfoButton" MouseDown="ProgramInfoButton_MouseDown" Margin="10,6,0,0"/>
@@ -23,7 +23,7 @@
         <Image Height="24" Width="24" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="SettingsButton" MouseDown="SettingsButton_MouseDown" Margin="1138,6,0,0"/>
 
         <!-- Playlist list -->
-        <ListBox Margin="15,68,680,134" x:Name="PlaylistsList" SelectionChanged="PlaylistsList_SelectionChanged" FontFamily="DejaVu Sans" FontSize="18" Background="{x:Null}"/>
+        <ListBox Margin="15,68,680,134" x:Name="PlaylistsList" SelectionChanged="PlaylistsList_SelectionChanged" FontFamily="DejaVu Sans" FontSize="18" Background="{x:Null}" ItemsSource="{Binding Playlists}" Loaded="PlaylistsList_Loaded"/>
 
         <!-- Add new playlist button -->
         <Image Height="32" Width="32" Margin="504,118,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="AddPlaylistButton" MouseDown="AddPlaylistButton_MouseDown"/>
@@ -42,7 +42,7 @@
         <Image Height="32" Width="32" Margin="643,210,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="RepeatSongButton" MouseDown="RepeatSongButton_MouseDown" />
 
         <!-- List of songs in the current playlist -->
-        <ListBox Margin="680,68,15,134" x:Name="SongList" SelectionChanged="SongList_SelectionChanged" FontFamily="DejaVu Sans" FontSize="14" MouseDoubleClick="SongList_MouseDoubleClick" Background="{x:Null}"/>
+        <ListBox Margin="680,68,15,134" x:Name="SongList" SelectionChanged="SongList_SelectionChanged" FontFamily="DejaVu Sans" FontSize="14" MouseDoubleClick="SongList_MouseDoubleClick" Background="{x:Null}" ItemsSource="{Binding Songs}" />
 
         <!-- Playback control buttons -->
         <Image Height="48" Width="48" Margin="10,574,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="PlayPreviosButton" MouseDown="PlayPreviosSongButton_MouseDown"/>
