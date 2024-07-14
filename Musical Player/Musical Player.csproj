@@ -115,11 +115,13 @@
     <Compile Include="Global\Config.cs" />
     <Compile Include="Global\PlayerLogic.cs" />
     <Compile Include="Loading logic\SetupLogic.cs" />
-    <Compile Include="Models\Player.cs" />
+    <Compile Include="Models\LanguageModel.cs" />
+    <Compile Include="Models\PlayerModel.cs" />
     <Compile Include="Models\SongModel.cs" />
-    <Compile Include="Models\StyleModel.cs" />
-    <Compile Include="Styles\StyleManager.cs" />
+    <Compile Include="ViewModels\InfoWindowViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\NameDialogViewModel.cs" />
+    <Compile Include="ViewModels\SettingWindowViewModel.cs" />
     <Compile Include="Views\InfoWindow.xaml.cs">
       <DependentUpon>InfoWindow.xaml</DependentUpon>
     </Compile>

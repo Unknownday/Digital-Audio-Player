@@ -20,8 +20,8 @@ namespace Player_Loader.Logic.Models
 
         public ConfigModel(int lastSongIndex, int lastPlaylistIndex, int lastVolumeAmount, string defaultPath, string backgroundImagePath, string theme, bool isAutoSwitching) 
         { 
-            LastPlaylistIndex = lastSongIndex;
-            LastSongIndex = lastPlaylistIndex;
+            LastPlaylistIndex = lastPlaylistIndex;
+            LastSongIndex = lastSongIndex;
             LastVolumeAmount = lastVolumeAmount;
             DefaultPath = defaultPath;
             BackgroundImagePath = backgroundImagePath;

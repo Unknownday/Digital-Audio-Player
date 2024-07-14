@@ -5,21 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Musical_Player.Views"
         mc:Ignorable="d"
-        Title="Digital Audio Player Settings" Height="500" Width="452" ResizeMode="NoResize" Closing="Window_Closing" Background="{x:Null}">
-    <Grid>
+        Title="Digital Audio Player Settings" Height="240" Width="452" ResizeMode="NoResize" Closing="Window_Closing" Background="{x:Null}">
+    <Grid Margin="0,0,0,6">
         <Grid.RowDefinitions>
             <RowDefinition Height="50*"/>
             <RowDefinition Height="50*"/>
             <RowDefinition Height="50*"/>
             <RowDefinition Height="50*"/>
-            <RowDefinition Height="50*"/>
-            <RowDefinition Height="50*"/>
-            <RowDefinition Height="50*"/>
-            <RowDefinition Height="255*"/>
         </Grid.RowDefinitions>
 
         <!-- Auto song switching toggle -->
-        <RadioButton x:Name="AutoSongSwitchingSelector" Content="Enable/Disable Auto Song Switching" HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="DejaVu Sans" FontSize="18" Height="20" Width="396" Click="AutoSongSwitchingSelector_Click" Foreground="White" Margin="39,0,0,0"/>
+        <CheckBox x:Name="AutoSongSwitchingSelector" Content="Enable auto song switching" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="DejaVu Sans" FontSize="18" Height="20" Width="270" Click="AutoSongSwitchingSelector_Click" Foreground="White" IsChecked="True"/>
 
         <!-- Button to change the player directory -->
         <Button x:Name="ChooseDefaultDirButton" Content="Change Player Directory" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="DejaVu Sans" FontSize="18" BorderBrush="Black" Grid.Row="1" Height="25" Width="292" Click="ChooseDefaultDirButton_Click" Background="{x:Null}"/>
@@ -31,9 +27,6 @@
         <Image x:Name="ResetBackgroundButton" HorizontalAlignment="Left" Height="25" Width="25" Margin="384,0,0,0" VerticalAlignment="Center" Grid.Row="2" MouseDown="ResetBackgroundButton_MouseDown"/>
 
         <!-- Checkbox to enable light theme -->
-        <CheckBox x:Name="SwitchThemeCheckbox" Content="Enable Light Theme" HorizontalAlignment="Left" Grid.Row="3" VerticalAlignment="Center" FontFamily="DejaVu Sans" FontSize="16" Click="SwitchThemeCheckbox_Click" Background="White" Foreground="White" Margin="10,0,0,0"/>
-
-        <RadioButton x:Name="EnableColorTheme" Content="Enable custom theme" HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="DejaVu Sans" FontSize="18" Height="20" Click="AutoSongSwitchingSelector_Click" Foreground="White" Grid.Row="4" Margin="10,0,0,0"/>
-        <Border BorderBrush="Black" BorderThickness="1" Grid.Row="7" Margin="10"/>
+        <CheckBox x:Name="SwitchThemeCheckbox" Content="Enable Light Theme" HorizontalAlignment="Left" Grid.Row="3" VerticalAlignment="Center" FontFamily="DejaVu Sans" FontSize="16" Click="SwitchThemeCheckbox_Click" Background="White" Foreground="White" Margin="118,0,0,0"/>
     </Grid>
 </Window>

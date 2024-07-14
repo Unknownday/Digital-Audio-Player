@@ -16,6 +16,7 @@ using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -57,10 +58,6 @@ namespace MusicalPlayer
         /// </summary>
         public bool isRepeating = false;
 
-        private bool restored = false;
-
-        public List<string> Playlists { get; set; }
-
         /// <summary>
         /// Constructor for the MainWindow class
         /// </summary>
@@ -100,6 +97,8 @@ namespace MusicalPlayer
             //Updating graphical interface
             UpdateUi();
 
+            LoadLanguageConfig();
+
             // Set window background if an image path is specified
             if (!string.IsNullOrEmpty(Config.BackgroundImagePath) && Config.BackgroundImagePath != "none")
             {
@@ -109,8 +108,6 @@ namespace MusicalPlayer
             {
                 SetWindowBackground(Path.Combine(Config.DefaultPath, "Icons", $"{Config.Theme}Background.png"));
             }
-
-            MainWindowViewModel mainWindowViewModel = new MainWindowViewModel();
 
             // Allow file dragging
             AllowDrop = true;
@@ -124,14 +121,50 @@ namespace MusicalPlayer
             // Start the timer
             durationTimer.Start();
 
+            // Set the value for the volume slider
+            VolumeSlider.Value = Config.LastVolume;
+
+            //Update the playlist list
+            UpdatePlaylistList();
+
             // Restore the previous playlist
             PlaylistsList.SelectedIndex = Config.LastPlaylist;
+
+            //Awaiting until songs will be loaded;
+            while (SongList.Items.Count == 0 && SongList.Items == null) { }
 
             // Restore the previous song
             SongList.SelectedIndex = Config.LastSong;
 
-            // Set the value for the volume slider
-            VolumeSlider.Value = Config.LastVolume;
+            //Set the value for the volume label
+            VolumeLabel.Content = $"{Config.LastVolume}%";
+
+            //Restore last song volume
+            PlayerModel.CurrentSongVolume = (float)(Config.LastVolume / 100);
+        }
+
+        private void LoadLanguageConfig()
+        {
+            LanguageModel model = new LanguageModel();
+
+            model.AutoSwitchBtnText = "Enable/Disable Auto song switching";
+            model.CloseBtnText = "Close information window";
+            model.Label1Text = "Player created using:";
+            model.Label2Text = "NAudio library";
+            model.SongsTagText = "Your Songs:";
+            model.PlaylistsTagText = "Your Playlists:";
+            model.ChangeBgBtnText = "Choose background image";
+            model.ChangeDirectoryBtnText = "Change player default directory";
+            model.BuildVerText = $"Build: {Config.VERSION}";
+            model.ShuffleBtnText = "Shuffle songs";
+            model.SubmitBtnText = "Confirm";
+            model.TextBoxTag = "Input new playlist name";
+            model.ThemeToggler = "Enable custom theme";
+            model.SwitchThemeTag = "Enable light theme";
+            model.RepeatIndicator = "REPEAT";
+            model.SongNameText = "Select song first";
+
+            Config.LanguageModel = model;
         }
 
         /// <summary>
@@ -212,25 +245,25 @@ namespace MusicalPlayer
             try
             {
                 // Save the current volume
-                var tempSoundValue = Player.CurrentSongVolume;
+                var tempSoundValue = PlayerModel.CurrentSongVolume;
 
                 // Mute the sound
-                Player.CurrentSongVolume = Player.AudioValueBackup;
+                PlayerModel.CurrentSongVolume = PlayerModel.AudioValueBackup;
 
                 // Save the current volume for restoration
-                Player.AudioValueBackup = tempSoundValue;
+                PlayerModel.AudioValueBackup = tempSoundValue;
 
                 // Update the player state
-                Player.IsMuted = !Player.IsMuted;
+                PlayerModel.IsMuted = !PlayerModel.IsMuted;
 
                 // Set the value for the volume slider
-                VolumeSlider.Value = Player.CurrentSongVolume * 100;
+                VolumeSlider.Value = PlayerModel.CurrentSongVolume * 100;
 
                 // Set the value for the volume label
-                VolumeLabel.Content = $"{Convert.ToInt32(Math.Abs(Player.CurrentSongVolume * 100))}%";
+                VolumeLabel.Content = $"{Convert.ToInt32(Math.Abs(PlayerModel.CurrentSongVolume * 100))}%";
 
                 // Set the new volume value for the player
-                Player.AudioPlayer.Volume = Player.CurrentSongVolume;
+                PlayerModel.AudioPlayer.Volume = PlayerModel.CurrentSongVolume;
             }
             catch { }
         }
@@ -404,7 +437,7 @@ namespace MusicalPlayer
                 InitSong(SongList.SelectedIndex);
 
                 // Update the maximum slider length
-                DurationSlider.Maximum = (int)Player.CurrentSong.TotalTime.TotalSeconds;
+                DurationSlider.Maximum = (int)PlayerModel.CurrentSong.TotalTime.TotalSeconds;
 
                 PlaySong();
             }
@@ -424,10 +457,10 @@ namespace MusicalPlayer
             try
             {
                 // Update the current player state
-                Player.CurrentPlayerState = PlayerStates.OnPause;
+                PlayerModel.CurrentPlayerState = PlayerStates.OnPause;
 
                 // Pause playback
-                Player.AudioPlayer.Pause();
+                PlayerModel.AudioPlayer.Pause();
             }
             catch { }
         }
@@ -445,7 +478,7 @@ namespace MusicalPlayer
             try
             {
                 // Depending on the current player state, perform the corresponding actions
-                switch (Player.CurrentPlayerState)
+                switch (PlayerModel.CurrentPlayerState)
                 {
                     case PlayerStates.Idle:
                     case PlayerStates.InProgress:
@@ -453,13 +486,13 @@ namespace MusicalPlayer
                         InitSong(SongList.SelectedIndex);
 
                         // Set the maximum value of the duration slider equal to the song duration
-                        DurationSlider.Maximum = (int)Player.CurrentSong.TotalTime.TotalSeconds;
+                        DurationSlider.Maximum = (int)PlayerModel.CurrentSong.TotalTime.TotalSeconds;
 
                         // Play the song
                         PlaySong();
 
                         // Update the label with the song name
-                        SongNameLabel.Content = Player.CurrentSongName;
+                        SongNameLabel.Content = PlayerModel.CurrentSongName;
 
                         // Start the interface update timer
                         durationTimer.Start();
@@ -467,10 +500,10 @@ namespace MusicalPlayer
 
                     case PlayerStates.OnPause:
                         // Update the player state
-                        Player.CurrentPlayerState = PlayerStates.InProgress;
+                        PlayerModel.CurrentPlayerState = PlayerStates.InProgress;
 
                         // Resume playback of the song
-                        Player.AudioPlayer.Play();
+                        PlayerModel.AudioPlayer.Play();
 
                         // Start the interface update timer
                         durationTimer.Start();
@@ -505,7 +538,7 @@ namespace MusicalPlayer
                 InitSong(SongList.SelectedIndex);
 
                 // Update the maximum length of the slider
-                DurationSlider.Maximum = (int)Player.CurrentSong.TotalTime.TotalSeconds;
+                DurationSlider.Maximum = (int)PlayerModel.CurrentSong.TotalTime.TotalSeconds;
 
                 PlaySong();
             }
@@ -552,27 +585,27 @@ namespace MusicalPlayer
             try
             {
                 // Check if the current song is set
-                if (Player.CurrentSong != null)
+                if (PlayerModel.CurrentSong != null)
                 {
                     // Update the label with the duration
-                    DurationLabel.Content = PlayerLogic.GetDurationLabel(Player.CurrentSong.CurrentTime.Minutes,
-                            Player.CurrentSong.CurrentTime.Seconds,
-                            Player.CurrentSong.TotalTime.Minutes,
-                            Player.CurrentSong.TotalTime.Seconds
+                    DurationLabel.Content = PlayerLogic.GetDurationLabel(PlayerModel.CurrentSong.CurrentTime.Minutes,
+                            PlayerModel.CurrentSong.CurrentTime.Seconds,
+                            PlayerModel.CurrentSong.TotalTime.Minutes,
+                            PlayerModel.CurrentSong.TotalTime.Seconds
                         );
 
                     // Set the value of the duration slider
-                    DurationSlider.Value = Player.CurrentSong.CurrentTime.Seconds + 60 * Player.CurrentSong.CurrentTime.Minutes;
+                    DurationSlider.Value = PlayerModel.CurrentSong.CurrentTime.Seconds + 60 * PlayerModel.CurrentSong.CurrentTime.Minutes;
 
                     // Display the current status in the window title
-                    string playbackState = Player.CurrentPlayerState == PlayerStates.InProgress ? "▶" : "||";
-                    Title = Player.IsAutoSwitching ? $"{playbackState} {Player.CurrentSongName} |⇌|" : $"{playbackState} {Player.CurrentSongName}";
+                    string playbackState = PlayerModel.CurrentPlayerState == PlayerStates.InProgress ? "▶" : "||";
+                    Title = PlayerModel.IsAutoSwitching ? $"{playbackState} {PlayerModel.CurrentSongName} |⇌|" : $"{playbackState} {PlayerModel.CurrentSongName}";
 
                     // Update the label with the song name
-                    SongNameLabel.Content = Player.CurrentSongName;
+                    SongNameLabel.Content = PlayerModel.CurrentSongName;
 
                     // Update the label with the volume
-                    VolumeLabel.Content = $"{(int)Math.Round(Math.Abs(Player.CurrentSongVolume * 100))}%";
+                    VolumeLabel.Content = $"{(int)Math.Round(Math.Abs(PlayerModel.CurrentSongVolume * 100))}%";
                 }
             }
             catch { }
@@ -603,13 +636,13 @@ namespace MusicalPlayer
             InitSong(nextIndex);
 
             // Update the maximum length of the slider
-            DurationSlider.Maximum = (int)Player.CurrentSong.TotalTime.TotalSeconds;
+            DurationSlider.Maximum = (int)PlayerModel.CurrentSong.TotalTime.TotalSeconds;
 
             // Start playing the song
             PlaySong();
 
             // Update the label with the song name
-            SongNameLabel.Content = Player.CurrentSongName;
+            SongNameLabel.Content = PlayerModel.CurrentSongName;
 
             // Increase the index in the song list
             SongList.SelectedIndex += 1;
@@ -626,7 +659,7 @@ namespace MusicalPlayer
         private void Slider_DragDelta(object sender, DragDeltaEventArgs e)
         {
             // Update the current player time
-            Player.CurrentSong.CurrentTime = TimeSpan.FromSeconds(DurationSlider.Value);
+            PlayerModel.CurrentSong.CurrentTime = TimeSpan.FromSeconds(DurationSlider.Value);
         }
 
         /// <summary>
@@ -648,7 +681,7 @@ namespace MusicalPlayer
                 }
 
                 // Automatically play the next song
-                PlayNextTrack(Player.IsAutoSwitching);
+                PlayNextTrack(PlayerModel.IsAutoSwitching);
             }
         }
 
@@ -662,16 +695,16 @@ namespace MusicalPlayer
             if (!FileManager.ValidatePath(Config.SongPaths[songIndex])) return;
 
             // Stop playback
-            Player.AudioPlayer.Stop();
+            PlayerModel.AudioPlayer.Stop();
 
             // Redefine the song in the player model
-            Player.CurrentSong = new AudioFileReader(Config.SongPaths[songIndex]);
+            PlayerModel.CurrentSong = new AudioFileReader(Config.SongPaths[songIndex]);
 
             // Initialize the player in the audio player
-            Player.AudioPlayer.Init(Player.CurrentSong);
+            PlayerModel.AudioPlayer.Init(PlayerModel.CurrentSong);
 
             // Clear the song name from the extension and write it to the player model
-            Player.CurrentSongName = FileManager.NameFilter(Config.SongNames[songIndex]);
+            PlayerModel.CurrentSongName = FileManager.NameFilter(Config.SongNames[songIndex]);
         }
 
         /// <summary>
@@ -680,16 +713,16 @@ namespace MusicalPlayer
         public static void PlaySong()
         {
             // Stop playing the current song
-            Player.AudioPlayer.Stop();
+            PlayerModel.AudioPlayer.Stop();
 
             // Check if the song is not null to avoid NullReferenceException
-            if (Player.CurrentSong == null) { return; }
+            if (PlayerModel.CurrentSong == null) { return; }
 
             // Update the player status
-            Player.CurrentPlayerState = PlayerStates.InProgress;
+            PlayerModel.CurrentPlayerState = PlayerStates.InProgress;
 
             // Start playing the song
-            Player.AudioPlayer.Play();
+            PlayerModel.AudioPlayer.Play();
         }
 
         /// <summary>
@@ -756,15 +789,15 @@ namespace MusicalPlayer
             try
             {
                 // Save the current volume
-                Player.CurrentSongVolume = (float)(VolumeSlider.Value / 100);
+                PlayerModel.CurrentSongVolume = (float)(VolumeSlider.Value / 100);
 
                 // Assign the new volume value to the player
-                Player.AudioPlayer.Volume = Player.CurrentSongVolume;
+                PlayerModel.AudioPlayer.Volume = PlayerModel.CurrentSongVolume;
 
                 if (VolumeLabel != null)
                 {
                     // Update the label containing the player volume
-                    VolumeLabel.Content = $"{(int)Math.Round(Math.Abs(Player.CurrentSongVolume * 100))}%";
+                    VolumeLabel.Content = $"{(int)Math.Round(Math.Abs(PlayerModel.CurrentSongVolume * 100))}%";
                 }
             }
             catch { }
@@ -843,7 +876,7 @@ namespace MusicalPlayer
                 InitSong(SongList.SelectedIndex);
 
                 // Update the maximum length of the slider
-                DurationSlider.Maximum = (int)Player.CurrentSong.TotalTime.TotalSeconds;
+                DurationSlider.Maximum = (int)PlayerModel.CurrentSong.TotalTime.TotalSeconds;
                 PlaySong();
             }
         }
@@ -956,27 +989,5 @@ namespace MusicalPlayer
             UpdatePlaylistList();
         }
         
-        /// <summary>
-        /// Handler used once only for restore last settings
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Window_ContentRendered(object sender, EventArgs e)
-        {
-            //Update the playlist list
-            UpdatePlaylistList();
-            
-            //Set the value for the volume label
-            VolumeLabel.Content = $"{Config.LastVolume}%";
-            
-            //Restore last song volume
-            Player.CurrentSongVolume = (float)(Config.LastVolume / 100);
-        }
-
-        private void PlaylistsList_Loaded(object sender, RoutedEventArgs e)
-        {
-            PlaylistsList.SelectedIndex = Config.LastPlaylist;
-            MessageBox.Show("Loaded");
-        }
     }
 }

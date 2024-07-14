@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MusicalPlayer"
         mc:Ignorable="d"
-        Title="Digital Audio Player" Height="704" Width="1200" ResizeMode="CanMinimize" DragEnter="Window_DragEnter" DragLeave="Window_DragLeave" Closing="Window_Closing" ContentRendered="Window_ContentRendered">
+        Title="Digital Audio Player" Height="704" Width="1200" ResizeMode="CanMinimize" DragEnter="Window_DragEnter" DragLeave="Window_DragLeave" Closing="Window_Closing">
     <Grid>
         <!-- Program information button -->
         <Image Height="24" Width="24" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="ProgramInfoButton" MouseDown="ProgramInfoButton_MouseDown" Margin="10,6,0,0"/>
@@ -23,7 +23,7 @@
         <Image Height="24" Width="24" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="SettingsButton" MouseDown="SettingsButton_MouseDown" Margin="1138,6,0,0"/>
 
         <!-- Playlist list -->
-        <ListBox Margin="15,68,680,134" x:Name="PlaylistsList" SelectionChanged="PlaylistsList_SelectionChanged" FontFamily="DejaVu Sans" FontSize="18" Background="{x:Null}" ItemsSource="{Binding Playlists}" Loaded="PlaylistsList_Loaded"/>
+        <ListBox Margin="15,68,680,134" x:Name="PlaylistsList" SelectionChanged="PlaylistsList_SelectionChanged" FontFamily="DejaVu Sans" FontSize="18" Background="{x:Null}" ItemsSource="{Binding Playlists}"/>
 
         <!-- Add new playlist button -->
         <Image Height="32" Width="32" Margin="504,118,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="AddPlaylistButton" MouseDown="AddPlaylistButton_MouseDown"/>
@@ -57,17 +57,17 @@
         <Slider HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,636,0,0" Width="1175" x:Name="DurationSlider" Thumb.DragDelta="Slider_DragDelta" ValueChanged="DurationBarSlider_ValueChanged" />
 
         <!-- Label with the name of the current song -->
-        <Label Content="Select a song first" HorizontalAlignment="Left" Margin="423,583,0,0" VerticalAlignment="Top" x:Name="SongNameLabel" FontFamily="DejaVu Sans" FontSize="18"/>
+        <Label Content="{Binding SongNameText}" HorizontalAlignment="Left" Margin="423,583,0,0" VerticalAlignment="Top" x:Name="SongNameLabel" FontFamily="DejaVu Sans" FontSize="18"/>
 
         <!-- Button for shuffling songs -->
-        <Button Content="Shuffle Songs" HorizontalAlignment="Left" Margin="835,530,0,0" VerticalAlignment="Top" Width="195" BorderBrush="#FFABADB3" Background="#00DDDDDD" x:Name="ShuffeButton" Click="ShuffeButton_Click" BorderThickness="1,0,1,1" FontFamily="DejaVu Sans" FontSize="18" Padding="1,1,1,1"/>
+        <Button Content="{Binding ShuffleBtnText}" HorizontalAlignment="Left" Margin="835,530,0,0" VerticalAlignment="Top" Width="195" BorderBrush="#FFABADB3" Background="#00DDDDDD" x:Name="ShuffeButton" Click="ShuffeButton_Click" BorderThickness="1,0,1,1" FontFamily="DejaVu Sans" FontSize="18" Padding="1,1,1,1"/>
 
         <!-- Tooltip label -->
-        <Label Content="Release to Add!" HorizontalAlignment="Center" Margin="0,255,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="36" FontWeight="Bold" x:Name="TipLabel" Visibility="Hidden"/>
+        <Label Content="{Binding DragTipText}" HorizontalAlignment="Center" Margin="0,255,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="36" FontWeight="Bold" x:Name="TipLabel" Visibility="Hidden"/>
 
         <!-- Labels for the lists -->
-        <Label x:Name="PlaylistLabel" Content="Your Playlists: " HorizontalAlignment="Left" Margin="198,37,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="18"/>
-        <Label x:Name="SongLabel" Content="Your Songs: " HorizontalAlignment="Left" Margin="872,39,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="18"/>
-        <Label x:Name="RepeatIndicatorLabel" Content="REPEAT" HorizontalAlignment="Center" Margin="0,607,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" Foreground="Red" FontWeight="Bold" Visibility="Hidden"/>
+        <Label x:Name="PlaylistLabel" Content="{Binding PlaylistsTagText}" HorizontalAlignment="Left" Margin="198,37,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="18"/>
+        <Label x:Name="SongLabel" Content="{Binding SongsTagText}" HorizontalAlignment="Left" Margin="872,39,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="18"/>
+        <Label x:Name="RepeatIndicatorLabel" Content="{Binding RepeatText}" HorizontalAlignment="Center" Margin="0,607,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" Foreground="Red" FontWeight="Bold" Visibility="Hidden"/>
     </Grid>
 </Window>

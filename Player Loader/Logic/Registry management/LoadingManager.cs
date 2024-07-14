@@ -2,11 +2,15 @@
 using Player_Loader.Logic.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media.Effects;
 using System.Xml.Linq;
 
 namespace Player_Loader.Logic
@@ -30,8 +34,10 @@ namespace Player_Loader.Logic
                 {
                     // Read and add each configuration value to the dictionary
                     result.Add("DefaultPath", key.GetValue("DefaultPath") as string);
+
                     result.Add("LastPlaylist", key.GetValue("LastPlaylist") as string);
                     result.Add("LastSong", key.GetValue("LastSong") as string);
+
                     result.Add("LastVolume", key.GetValue("LastVolume") as string);
                     result.Add("Background", key.GetValue("Background") as string);
                     result.Add("AutoSwitch", key.GetValue("AutoSwitch") as string);
@@ -65,6 +71,8 @@ namespace Player_Loader.Logic
             string thema = "";
             bool autoswitch = true;
 
+            bool isOk = true;
+
             if (currentConfig != null)
             {
                 // Check and update DefaultPath if available
@@ -74,6 +82,10 @@ namespace Player_Loader.Logic
                     {
                         defaultPath = defPath;
                     }
+                    else
+                    {
+                        isOk = false;
+                    }
                 }
 
                 // Check and update BackgroundImagePath if available
@@ -82,6 +94,10 @@ namespace Player_Loader.Logic
                     if (!string.IsNullOrEmpty(background))
                     {
                         backgroundImage = background;
+                    }
+                    else
+                    {
+                        isOk = false;
                     }
                 }
 
@@ -95,6 +111,10 @@ namespace Player_Loader.Logic
                             lastPlaylist = playlistIndex;
                         }
                     }
+                    else 
+                    { 
+                        isOk = false; 
+                    }
                 }
 
                 // Check and update LastSong if available
@@ -106,6 +126,11 @@ namespace Player_Loader.Logic
                         {
                             lastSong = songIndex;
                         }
+
+                    }
+                    else
+                    {
+                        isOk = false;
                     }
                 }
 
@@ -119,6 +144,10 @@ namespace Player_Loader.Logic
                             volumeBackup = lastVolume;
                         }
                     }
+                    else
+                    {
+                        isOk = false;
+                    }
                 }
 
                 // Check and update AutoSwitching setting if available
@@ -131,6 +160,10 @@ namespace Player_Loader.Logic
                             autoswitch = isAutoSwitch;
                         }
                     }
+                    else
+                    {
+                        isOk = false;
+                    }
                 }
 
                 // Check and update Theme if available
@@ -140,7 +173,21 @@ namespace Player_Loader.Logic
                     {
                         thema = theme;
                     }
+                    else
+                    {
+                        isOk = false;
+                    }
                 }
+            }
+            else
+            {
+                isOk = false;
+            }
+
+            if (!isOk)
+            {
+                InitDefaultRegistry();
+                return null;
             }
 
             return new ConfigModel(lastSong, lastPlaylist, volumeBackup, defaultPath, backgroundImage, thema, autoswitch);
@@ -152,6 +199,7 @@ namespace Player_Loader.Logic
         public static void ValidateDefaultPath(ConfigModel cfg)
         {
             // Create directories if they do not exist
+            
             if (!Directory.Exists(cfg.DefaultPath))
             {
                 Directory.CreateDirectory(cfg.DefaultPath);
@@ -194,6 +242,24 @@ namespace Player_Loader.Logic
                     client.DownloadFile("https://sharedby.blomp.com/6dxQGn", Path.Combine(defaultPath, "Icons", "WhiteBackground.png"));
                 }
                 catch { }
+            }
+        }
+
+        public static void InitDefaultRegistry()
+        {
+            // Open or create the registry key for writing configuration settings
+            using (RegistryKey key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\DigitalAudioPlayer\PlayerConfig"))
+            {
+                // Set each configuration value in the registry
+                key.SetValue("DefaultPath", @"C:\\Digital audio player");
+                key.SetValue("LastPlaylist", "-1");
+                key.SetValue("LastSong", "-1");
+                key.SetValue("LastVolume", "50");
+                key.SetValue("Background", "none");
+                key.SetValue("AutoSwitch", true);
+                key.SetValue("Theme", "White");
+                key.SetValue("AppPath", AppDomain.CurrentDomain.BaseDirectory);
+                key.SetValue("Version", "UNABLE TO GET DATA");
             }
         }
     }

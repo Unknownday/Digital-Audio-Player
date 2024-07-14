@@ -24,7 +24,7 @@ namespace Musical_Player.Views
             InitializeComponent();
 
             // Set the state of the automatic song switching checkbox according to the current value in Player
-            AutoSongSwitchingSelector.IsChecked = Player.IsAutoSwitching;
+            AutoSongSwitchingSelector.IsChecked = PlayerModel.IsAutoSwitching;
             SwitchThemeCheckbox.IsChecked = Config.Theme == "Black" ? true : false;
 
             // Set the window background if the image path is specified
@@ -78,10 +78,10 @@ namespace Musical_Player.Views
         private void AutoSongSwitchingSelector_Click(object sender, RoutedEventArgs e)
         {
             // Update the value of AutoSongSwitchingSelector to the opposite of the current state
-            AutoSongSwitchingSelector.IsChecked = !Player.IsAutoSwitching;
+            AutoSongSwitchingSelector.IsChecked = !PlayerModel.IsAutoSwitching;
 
             // Update the value of the IsAutoSwitching property in Player according to the checkbox state
-            Player.IsAutoSwitching = !Player.IsAutoSwitching;
+            PlayerModel.IsAutoSwitching = !PlayerModel.IsAutoSwitching;
         }
 
         // Event handler for the CloseButton click event
@@ -150,5 +150,6 @@ namespace Musical_Player.Views
             Result = true;
             Close();
         }
+
     }
 }

@@ -6,7 +6,7 @@ namespace Musical_Player.Models
     /// <summary>
     /// Audio player model
     /// </summary>
-    public static class Player
+    public static class PlayerModel
     {
         /// <summary>
         /// Instance of the audio player from the NAudio library

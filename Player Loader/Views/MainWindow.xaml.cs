@@ -31,7 +31,7 @@ namespace Player_Loader
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
-            var cfg = LoadingManager.CreateConfigModel();
+            var cfg = LoadingManager.CreateConfigModel() ?? LoadingManager.CreateConfigModel();
 
             LoadingManager.ValidateDefaultPath(cfg);
 
