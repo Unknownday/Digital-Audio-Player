@@ -63,11 +63,11 @@ namespace MusicalPlayer
         /// </summary>
         public MainWindow()
         {
-            // Initialize program components
-            InitializeComponent();
-
             // Preparing programm to work
             StartupProgram();
+
+            // Initialize program components
+            InitializeComponent();
         }
 
         /// <summary>
@@ -92,10 +92,10 @@ namespace MusicalPlayer
             Config.BackgroundImagePath = keys["Background"] == "none" ? "none" : keys["Background"];
 
             //Creating icon dictionary from image
-            SetupLogic.CreateIconsBitmap();
+            //SetupLogic.CreateIconsBitmap();
 
             //Updating graphical interface
-            UpdateUi();
+            //UpdateUi();
 
             LoadLanguageConfig();
 
@@ -122,25 +122,31 @@ namespace MusicalPlayer
             durationTimer.Start();
 
             // Set the value for the volume slider
-            VolumeSlider.Value = Config.LastVolume;
+            //VolumeSlider.Value = Config.LastVolume;
 
             //Update the playlist list
             UpdatePlaylistList();
 
             // Restore the previous playlist
-            PlaylistsList.SelectedIndex = Config.LastPlaylist;
+            //PlaylistsList.SelectedIndex = Config.LastPlaylist;
 
             //Awaiting until songs will be loaded;
-            while (SongList.Items.Count == 0 && SongList.Items == null) { }
+            // while (SongList.Items.Count == 0 && SongList.Items == null) { }
 
             // Restore the previous song
-            SongList.SelectedIndex = Config.LastSong;
+            //SongList.SelectedIndex = Config.LastSong;
 
             //Set the value for the volume label
-            VolumeLabel.Content = $"{Config.LastVolume}%";
+            // VolumeLabel.Content = $"{Config.LastVolume}%";
 
             //Restore last song volume
-            PlayerModel.CurrentSongVolume = (float)(Config.LastVolume / 100);
+            // PlayerModel.CurrentSongVolume = (float)(Config.LastVolume / 100);
+
+            ThemeManager themeManager = ThemeManager.Instance;
+
+            MainWindowViewModel mainWindowViewModel = MainWindowViewModel.Instance;
+
+            this.DataContext = mainWindowViewModel;
         }
 
         private void LoadLanguageConfig()
@@ -200,7 +206,7 @@ namespace MusicalPlayer
         private void MainWindow_Drop(object sender, DragEventArgs e)
         {
             // Hide the tooltip
-            TipLabel.Visibility = Visibility.Hidden;
+            //TipLabel.Visibility = Visibility.Hidden;
 
             // Check if a playlist is selected
             if (!isPlaylistChoosed) { MessageBox.Show("Select a playlist first!", "Musical player"); return; }
@@ -212,7 +218,7 @@ namespace MusicalPlayer
             if (files.Any(file => !FileManager.IsSupportedAudioFormat(file))) { return; }
 
             // Add each supported audio file to the selected playlist
-            files.Where(FileManager.IsSupportedAudioFormat).ToList().ForEach(file => FileManager.AddSong(file, PlaylistsList.SelectedItem.ToString()));
+            //files.Where(FileManager.IsSupportedAudioFormat).ToList().ForEach(file => FileManager.AddSong(file, PlaylistsList.SelectedItem.ToString()));
             
             var currentIndex = PlaylistsList.SelectedIndex;
             UpdatePlaylistList();
@@ -278,7 +284,7 @@ namespace MusicalPlayer
             try
             {
                 // Create a new playlist
-                FileManager.CreatePlaylist();
+               // FileManager.CreatePlaylist();
 
                 // Update the playlist list
                 UpdatePlaylistList();
@@ -296,7 +302,7 @@ namespace MusicalPlayer
             try
             {
                 // Delete the selected playlist
-                FileManager.DeletePlaylist(PlaylistsList.SelectedItem.ToString());
+                //FileManager.DeletePlaylist(PlaylistsList.SelectedItem.ToString());
 
                 isSongChoosed = false;
                 isPlaylistChoosed = false;
@@ -325,7 +331,7 @@ namespace MusicalPlayer
                 if (currentIndex - 1 < 0) { return; }
 
                 // Move the song up in the queue
-                FileManager.MoveSongInQueue(currentIndex, PlaylistsList.SelectedItem.ToString(), Enums.MoveDirections.Up);
+                //FileManager.MoveSongInQueue(currentIndex, PlaylistsList.SelectedItem.ToString(), Enums.MoveDirections.Up);
 
                 // Update the playlist list
                 UpdatePlaylistList();
@@ -351,7 +357,7 @@ namespace MusicalPlayer
                 var currentIndex = SongList.SelectedIndex;
                 if (currentIndex + 1 >= SongList.Items.Count) { return; }
                 // Move the song down in the queue
-                FileManager.MoveSongInQueue(currentIndex, PlaylistsList.SelectedItem.ToString(), Enums.MoveDirections.Down);
+                //FileManager.MoveSongInQueue(currentIndex, PlaylistsList.SelectedItem.ToString(), Enums.MoveDirections.Down);
 
                 // Update the playlist list
                 UpdatePlaylistList();
@@ -375,7 +381,7 @@ namespace MusicalPlayer
             try
             {
                 // Add a song to the playlist
-                FileManager.AddSongToPlaylist(PlaylistsList.SelectedItem.ToString());
+               // FileManager.AddSongToPlaylist(PlaylistsList.SelectedItem.ToString());
 
                 // Update the song and playlist list
                 UpdatePlaylistList();
@@ -401,7 +407,7 @@ namespace MusicalPlayer
             try
             {
                 // Delete the selected song from the playlist
-                FileManager.DeleteSong(PlaylistsList.SelectedItem.ToString(), SongList.SelectedIndex);
+               // FileManager.DeleteSong(PlaylistsList.SelectedItem.ToString(), SongList.SelectedIndex);
 
                 // Update the playlist list
                 UpdatePlaylistList();
@@ -765,7 +771,7 @@ namespace MusicalPlayer
         private void Window_DragEnter(object sender, DragEventArgs e)
         {
             // Update the visibility of the hint label
-            TipLabel.Visibility = Visibility.Visible;
+            //TipLabel.Visibility = Visibility.Visible;
         }
 
         /// <summary>
@@ -776,7 +782,7 @@ namespace MusicalPlayer
         private void Window_DragLeave(object sender, DragEventArgs e)
         {
             // Update the visibility of the hint label
-            TipLabel.Visibility = Visibility.Hidden;
+            //TipLabel.Visibility = Visibility.Hidden;
         }
 
         /// <summary>
@@ -856,7 +862,7 @@ namespace MusicalPlayer
                 {
                     SetWindowBackground(Path.Combine(Config.DefaultPath, "Icons", $"{Config.Theme}Background.png"));
                 }
-                UpdateUi();
+                //UpdateUi();
                 UpdatePlaylistList();
                 PlaylistsList.SelectedIndex = 0;
             }
@@ -902,64 +908,17 @@ namespace MusicalPlayer
         /// </summary>
         private void UpdatePlaylistList()
         {
-            int lastIndex = PlaylistsList.SelectedIndex;
+            //int lastIndex = PlaylistsList.SelectedIndex;
 
-            var ViewModelInstance = MainWindowViewModel.Instance;
+            //var ViewModelInstance = MainWindowViewModel.Instance;
 
-            ViewModelInstance.UpdatePlaylist(FileManager.GetPlaylists());
+            //ViewModelInstance.UpdatePlaylist(FileManager.GetPlaylists());
 
-            this.DataContext = ViewModelInstance;
+            //this.DataContext = ViewModelInstance;
 
-            PlaylistsList.SelectedIndex = lastIndex;
+            //PlaylistsList.SelectedIndex = lastIndex;
         }
 
-        /// <summary>
-        /// Update the interface
-        /// </summary>
-        private void UpdateUi()
-        {
-            // Update button images based on the configured icons
-            // 1 - Play button icon
-            // 2 - Pause button icon
-            // 3 - Select next button icon
-            // 4 - Select previos button icon
-            // 5 - Delete button icon
-            // 6 - Uneeded icon
-            // 7 - Info button icon
-            // 8 - Add(Just a simple "plus" symbol) button icon
-            // 9 - Disable song button icon
-            // 10 - Move up(arrow directed up) button icon
-            // 11 - Move down(arrow directed down) button icon
-            // 12 - Settings button icon
-            // 13 - Infinity repeat button icon
-            // 14 - Rename playlist button icon
-            PlayButton.Source = Config.IconsMap[1].ImageSource;
-            PauseButton.Source = Config.IconsMap[2].ImageSource;
-            PlayNextSongButton.Source = Config.IconsMap[3].ImageSource;
-            PlayPreviosButton.Source = Config.IconsMap[4].ImageSource;
-            DeletePlaylistButton.Source = Config.IconsMap[5].ImageSource;
-            DeleteSongButton.Source = Config.IconsMap[5].ImageSource;
-            ProgramInfoButton.Source = Config.IconsMap[7].ImageSource;
-            AddPlaylistButton.Source = Config.IconsMap[8].ImageSource;
-            AddSongButton.Source = Config.IconsMap[8].ImageSource;
-            MuteButton.Source = Config.IconsMap[9].ImageSource;
-            MoveDownButton.Source = Config.IconsMap[11].ImageSource;
-            MoveUpButton.Source = Config.IconsMap[10].ImageSource;
-            SettingsButton.Source = Config.IconsMap[12].ImageSource;
-            RepeatSongButton.Source = Config.IconsMap[13].ImageSource;
-            RenamePlaylistButton.Source = Config.IconsMap[14].ImageSource;
-
-            // Set the foreground color for various UI elements based on the configured theme color
-            var color = System.Drawing.Color.FromName(Config.Theme);
-            PlaylistsList.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
-            SongList.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
-            PlaylistLabel.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
-            SongLabel.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
-            ShuffeButton.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
-            VolumeLabel.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
-            DurationLabel.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
-            SongNameLabel.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
-        }
 
         /// <summary>
         /// Click handler for repeat button
@@ -971,8 +930,8 @@ namespace MusicalPlayer
             // Updating variable value
             isRepeating = !isRepeating;
 
-            // Updating repeating indicator visibility
-            RepeatIndicatorLabel.Visibility = isRepeating ? Visibility.Visible : Visibility.Hidden;
+            //// Updating repeating indicator visibility
+            //RepeatIndicatorLabel.Visibility = isRepeating ? Visibility.Visible : Visibility.Hidden;
         }
 
         /// <summary>
@@ -983,7 +942,7 @@ namespace MusicalPlayer
         private void RenamePlaylistButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //Renaming playlist 
-            FileManager.RenamePlaylist(PlaylistsList.SelectedItem.ToString());
+            //FileManager.RenamePlaylist(PlaylistsList.SelectedItem.ToString());
 
             //Updating playlists
             UpdatePlaylistList();

@@ -1,13 +1,8 @@
-﻿using Musical_Player.Global;
+﻿using Musical_Player.Config_management;
+using Musical_Player.Global;
 using Musical_Player.Models;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace MusicalPlayer
 {
@@ -61,6 +56,10 @@ namespace MusicalPlayer
             {
                 
             }
+            var HARDCODEDCFG = ConfigManager.TryLoadConfig();
+            Config.DefaultPath = HARDCODEDCFG["DefaultPath"];
+            ThemeManager modelInitialization = ThemeManager.Instance;
+
         }
     }
 }

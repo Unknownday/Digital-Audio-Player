@@ -1,73 +1,196 @@
-﻿<Window x:Class="MusicalPlayer.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:MusicalPlayer"
-        mc:Ignorable="d"
-        Title="Digital Audio Player" Height="704" Width="1200" ResizeMode="CanMinimize" DragEnter="Window_DragEnter" DragLeave="Window_DragLeave" Closing="Window_Closing">
+﻿<Window x:Class="MusicalPlayer.MainWindow"  
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"  
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"  
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"  
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"  
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"  
+        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"  
+        xmlns:local="clr-namespace:MusicalPlayer"   
+        xmlns:local1="clr-namespace:Musical_Player.ViewModels"  
+        mc:Ignorable="d"  
+        Title="Digital Audio Player" 
+        Height="550" 
+        Width="1000"  
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
+
     <Grid>
-        <!-- Program information button -->
-        <Image Height="24" Width="24" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="ProgramInfoButton" MouseDown="ProgramInfoButton_MouseDown" Margin="10,6,0,0"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <!-- Volume slider -->
-        <Slider HorizontalAlignment="Left" VerticalAlignment="Top" Margin="39,10,0,0" Width="361" x:Name="VolumeSlider" Maximum="100" Value="50" ValueChanged="audioBarSlider_ValueChanged" Height="22" />
+        <!-- Top Bar -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="10">
+            <Image Height="24" Width="24" x:Name="ProgramInfoButton" Source="{Binding InformationBtnBrush}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDown">
+                        <i:InvokeCommandAction Command="{Binding InfoBtnCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Image>
+            <Slider HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" Width="200" x:Name="VolumeSlider" Maximum="100" Value="50">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="ValueChanged">
+                        <i:InvokeCommandAction Command="{Binding VolumeBarValueChangedCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Slider>
+            <Label Content="50%" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" x:Name="VolumeLabel" FontFamily="DejaVu Sans" FontSize="18" Foreground="{Binding ControllsColor}"/>
+            <Image Height="24" Width="24" Margin="10,0,0,0" VerticalAlignment="Center" x:Name="MuteButton" Source="{Binding MuteBtnBrush}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDown">
+                        <i:InvokeCommandAction Command="{Binding MuteBtnCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Image>
+            <Image Height="24" Width="24" Margin="10,0,0,0" VerticalAlignment="Center" x:Name="SettingsButton" Source="{Binding SettingsBtnBrush}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDown">
+                        <i:InvokeCommandAction Command="{Binding SettingsBtnCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Image>
+        </StackPanel>
 
-        <!-- Label for current volume -->
-        <Label Content="50%" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="405,6,0,0" x:Name="VolumeLabel" FontFamily="DejaVu Sans" FontSize="18" />
+        <!-- Main Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Mute button -->
-        <Image Height="24" Width="24" Margin="473,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="MuteButton" MouseDown="MuteButton_MouseDown"/>
+            <!-- Playlist Section -->
+            <StackPanel Grid.Column="0" Margin="10">
+                <Label Content="Playlists" FontFamily="DejaVu Sans" FontSize="18" Foreground="{Binding ControllsColor}"/>
+                <ListBox Height="233" Width="200" x:Name="PlaylistsList" FontFamily="DejaVu Sans" FontSize="18" Background="{x:Null}" ItemsSource="{Binding Playlists}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding PlaylistSelectionChangedCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ListBox>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Image Height="32" Width="32" x:Name="AddPlaylistButton" Source="{Binding AddBtnBrush}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding CreatePlaylistBtnCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Image>
+                    <Image Height="32" Width="32" Margin="10,0,0,0" x:Name="DeletePlaylistButton" Source="{Binding RemovetnBrush}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding DeletePlaylistBtnCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Image>
+                    <Image Height="32" Width="32" Margin="10,0,0,0" x:Name="RenamePlaylistButton" Source="{Binding RenameBtnBrush}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding RenameBtnCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Image>
+                </StackPanel>
+            </StackPanel>
 
-        <!-- Settings button -->
-        <Image Height="24" Width="24" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="SettingsButton" MouseDown="SettingsButton_MouseDown" Margin="1138,6,0,0"/>
+            <!-- Songs Section -->
+            <StackPanel Grid.Column="1" Margin="10">
+                <Label Content="Songs" FontFamily="DejaVu Sans" FontSize="18" Foreground="{Binding ControllsColor}"/>
+                <ListBox Height="234" x:Name="SongList" FontFamily="DejaVu Sans" FontSize="14" Background="{x:Null}" ItemsSource="{Binding Songs}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding SongListSelectionChangedCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ListBox>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Image Height="32" Width="32" x:Name="MoveUpButton" Source="{Binding UpBtnBrush}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding MoveUpBtnCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Image>
+                    <Image Height="32" Width="32" Margin="10,0,0,0" x:Name="MoveDownButton" Source="{Binding DownBtnBrush}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding MoveDownBtnCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Image>
+                    <Image Height="32" Width="32" Margin="10,0,0,0" x:Name="AddSongButton" Source="{Binding AddBtnBrush}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding AddSongBtnCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Image>
+                    <Image Height="32" Width="32" Margin="10,0,0,0" x:Name="DeleteSongButton" Source="{Binding RemovetnBrush}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding DeleteSongBtnCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Image>
+                    <Image Height="32" Width="32" Margin="10,0,0,0" x:Name="RepeatSongButton" Source="{Binding ReplayBtnBrush}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding ReplayBtnCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Image>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
 
-        <!-- Playlist list -->
-        <ListBox Margin="15,68,680,134" x:Name="PlaylistsList" SelectionChanged="PlaylistsList_SelectionChanged" FontFamily="DejaVu Sans" FontSize="18" Background="{x:Null}" ItemsSource="{Binding Playlists}"/>
-
-        <!-- Add new playlist button -->
-        <Image Height="32" Width="32" Margin="504,118,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="AddPlaylistButton" MouseDown="AddPlaylistButton_MouseDown"/>
-
-        <!-- Delete current playlist button -->
-        <Image Height="32" Width="32" Margin="507,151,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="DeletePlaylistButton" MouseDown="DeletePlaylistButton_MouseDown"/>
-
-        <!-- Rename choosed playlist -->
-        <Image Height="32" Width="32" Margin="507,184,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="RenamePlaylistButton" MouseDown="RenamePlaylistButton_MouseDown" />
-
-        <!-- Song management buttons in the playlist -->
-        <Image Height="32" Width="32" Margin="643,70,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="MoveUpButton" MouseDown="MoveUpButton_MouseDown"/>
-        <Image Height="32" Width="32" Margin="643,107,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="MoveDownButton" MouseDown="MoveDownButton_MouseDown"/>
-        <Image Height="32" Width="32" Margin="643,140,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="AddSongButton" MouseDown="AddSongButton_MouseDown"/>
-        <Image Height="32" Width="32" Margin="643,177,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="DeleteSongButton" MouseDown="DeleteSongButton_MouseDown"/>
-        <Image Height="32" Width="32" Margin="643,210,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="RepeatSongButton" MouseDown="RepeatSongButton_MouseDown" />
-
-        <!-- List of songs in the current playlist -->
-        <ListBox Margin="680,68,15,134" x:Name="SongList" SelectionChanged="SongList_SelectionChanged" FontFamily="DejaVu Sans" FontSize="14" MouseDoubleClick="SongList_MouseDoubleClick" Background="{x:Null}" ItemsSource="{Binding Songs}" />
-
-        <!-- Playback control buttons -->
-        <Image Height="48" Width="48" Margin="10,574,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="PlayPreviosButton" MouseDown="PlayPreviosSongButton_MouseDown"/>
-        <Image Height="48" Width="48" Margin="77,574,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="PlayButton" MouseDown="PlayButton_MouseDown"/>
-        <Image Height="48" Width="48" Margin="140,574,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="PauseButton" MouseDown="PauseButton_MouseDown"/>
-        <Image Height="48" Width="48" Margin="211,574,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="PlayNextSongButton" MouseDown="PlayNextSongButton_MouseDown"/>
-
-        <!-- Song duration label -->
-        <Label Content="00:00/00:00" HorizontalAlignment="Left" Margin="280,583,0,0" VerticalAlignment="Top" x:Name="DurationLabel" FontFamily="DejaVu Sans" FontSize="18"/>
-
-        <!-- Song duration slider -->
-        <Slider HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,636,0,0" Width="1175" x:Name="DurationSlider" Thumb.DragDelta="Slider_DragDelta" ValueChanged="DurationBarSlider_ValueChanged" />
-
-        <!-- Label with the name of the current song -->
-        <Label Content="{Binding SongNameText}" HorizontalAlignment="Left" Margin="423,583,0,0" VerticalAlignment="Top" x:Name="SongNameLabel" FontFamily="DejaVu Sans" FontSize="18"/>
-
-        <!-- Button for shuffling songs -->
-        <Button Content="{Binding ShuffleBtnText}" HorizontalAlignment="Left" Margin="835,530,0,0" VerticalAlignment="Top" Width="195" BorderBrush="#FFABADB3" Background="#00DDDDDD" x:Name="ShuffeButton" Click="ShuffeButton_Click" BorderThickness="1,0,1,1" FontFamily="DejaVu Sans" FontSize="18" Padding="1,1,1,1"/>
-
-        <!-- Tooltip label -->
-        <Label Content="{Binding DragTipText}" HorizontalAlignment="Center" Margin="0,255,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="36" FontWeight="Bold" x:Name="TipLabel" Visibility="Hidden"/>
-
-        <!-- Labels for the lists -->
-        <Label x:Name="PlaylistLabel" Content="{Binding PlaylistsTagText}" HorizontalAlignment="Left" Margin="198,37,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="18"/>
-        <Label x:Name="SongLabel" Content="{Binding SongsTagText}" HorizontalAlignment="Left" Margin="872,39,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" FontSize="18"/>
-        <Label x:Name="RepeatIndicatorLabel" Content="{Binding RepeatText}" HorizontalAlignment="Center" Margin="0,607,0,0" VerticalAlignment="Top" FontFamily="DejaVu Sans" Foreground="Red" FontWeight="Bold" Visibility="Hidden"/>
+        <!-- Bottom Bar -->
+        <StackPanel Grid.Row="2" Margin="10">
+            <Slider Width="968" x:Name="DurationSlider">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="DragDelta">
+                        <i:InvokeCommandAction Command="{Binding DurationBarDeltaCommand}"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="ValueChanged">
+                        <i:InvokeCommandAction Command="{Binding DurationBarValueChangedCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Slider>
+            <StackPanel Orientation="Horizontal">
+                <Image Height="48" Width="48" x:Name="PlayPreviosButton" Source="{Binding BackwardBtnBrush}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseDown">
+                            <i:InvokeCommandAction Command="{Binding BackwardBtnCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Image>
+                <Image Height="48" Width="48" Margin="10,0,0,0" x:Name="PlayButton" Source="{Binding PlayBtnBrush}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseDown">
+                            <i:InvokeCommandAction Command="{Binding PlayBtnCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Image>
+                <Image Height="48" Width="48" Margin="10,0,0,0" x:Name="PauseButton" Source="{Binding PauseBtnBrush}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseDown">
+                            <i:InvokeCommandAction Command="{Binding PauseBtnCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Image>
+                <Image Height="48" Width="48" Margin="10,0,0,0" x:Name="PlayNextSongButton" Source="{Binding ForwardBtnBrush}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseDown">
+                            <i:InvokeCommandAction Command="{Binding ForwardBtnCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Image>
+                <Label Content="00:00/00:00" Margin="10,0,0,0" x:Name="DurationLabel" FontFamily="DejaVu Sans" FontSize="18" Foreground="{Binding ControllsColor}"/>
+                <Label Content="{Binding SongNameText}" Margin="10,0,0,0" x:Name="SongNameLabel" FontFamily="DejaVu Sans" FontSize="18" Foreground="{Binding ControllsColor}"/>
+            </StackPanel>
+            <Button Content="{Binding ShuffleBtnText}" HorizontalAlignment="Center" Margin="0,10,0,0" Width="195" BorderBrush="#FFABADB3" Background="#00DDDDDD" x:Name="ShuffeButton" Command="{Binding ShuffleBtnCommand}" BorderThickness="1,0,1,1" FontFamily="DejaVu Sans" FontSize="18" Padding="1,1,1,1" Foreground="{Binding ControllsColor}"/>
+        </StackPanel>
     </Grid>
-</Window>
+</Window>  
