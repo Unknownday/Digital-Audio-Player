@@ -64,10 +64,10 @@
             <!-- Playlist Section -->
             <StackPanel Grid.Column="0" Margin="10">
                 <Label Content="Playlists" FontFamily="DejaVu Sans" FontSize="18" Foreground="{Binding ControllsColor}"/>
-                <ListBox Height="233" Width="200" x:Name="PlaylistsList" FontFamily="DejaVu Sans" FontSize="18" Background="{x:Null}" ItemsSource="{Binding Playlists}">
+                <ListBox Height="233" Width="200" x:Name="PlaylistsList" FontFamily="DejaVu Sans" FontSize="18" Background="{x:Null}" ItemsSource="{Binding Playlists}" SelectedIndex="{Binding SelectedPlaylist, Mode=TwoWay}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">
-                            <i:InvokeCommandAction Command="{Binding PlaylistSelectionChangedCommand}" />
+                            <i:InvokeCommandAction Command="{Binding PlaylistsListSelectionChangedCommand}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </ListBox>
@@ -99,7 +99,7 @@
             <!-- Songs Section -->
             <StackPanel Grid.Column="1" Margin="10">
                 <Label Content="Songs" FontFamily="DejaVu Sans" FontSize="18" Foreground="{Binding ControllsColor}"/>
-                <ListBox Height="234" x:Name="SongList" FontFamily="DejaVu Sans" FontSize="14" Background="{x:Null}" ItemsSource="{Binding Songs}">
+                <ListBox Height="234" x:Name="SongList" FontFamily="DejaVu Sans" FontSize="14" Background="{x:Null}" ItemsSource="{Binding Songs}" SelectedIndex="{Binding SelectedSong, Mode=TwoWay}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">
                             <i:InvokeCommandAction Command="{Binding SongListSelectionChangedCommand}" />

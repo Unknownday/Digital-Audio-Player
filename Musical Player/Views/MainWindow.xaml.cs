@@ -68,6 +68,8 @@ namespace MusicalPlayer
 
             // Initialize program components
             InitializeComponent();
+
+            PlaylistsList.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -100,32 +102,32 @@ namespace MusicalPlayer
             LoadLanguageConfig();
 
             // Set window background if an image path is specified
-            if (!string.IsNullOrEmpty(Config.BackgroundImagePath) && Config.BackgroundImagePath != "none")
-            {
-                SetWindowBackground(Config.BackgroundImagePath);
-            }
-            if (Config.BackgroundImagePath == "none")
-            {
-                SetWindowBackground(Path.Combine(Config.DefaultPath, "Icons", $"{Config.Theme}Background.png"));
-            }
+            //if (!string.IsNullOrEmpty(Config.BackgroundImagePath) && Config.BackgroundImagePath != "none")
+           // {
+            //    SetWindowBackground(Config.BackgroundImagePath);
+            //}
+            //if (Config.BackgroundImagePath == "none")
+            //{
+            //    SetWindowBackground(Path.Combine(Config.DefaultPath, "Icons", $"{Config.Theme}Background.png"));
+           // }
 
             // Allow file dragging
-            AllowDrop = true;
+           // AllowDrop = true;
 
             // Attach function to the "file drop" event
-            Drop += MainWindow_Drop;
+            //Drop += MainWindow_Drop;
 
             // Create a timer for updating the interface
-            durationTimer = CreateTimer(new EventHandler(UpdateDuration));
+            //durationTimer = CreateTimer(new EventHandler(UpdateDuration));
 
             // Start the timer
-            durationTimer.Start();
+           // durationTimer.Start();
 
             // Set the value for the volume slider
             //VolumeSlider.Value = Config.LastVolume;
 
             //Update the playlist list
-            UpdatePlaylistList();
+           // UpdatePlaylistList();
 
             // Restore the previous playlist
             //PlaylistsList.SelectedIndex = Config.LastPlaylist;
@@ -143,9 +145,9 @@ namespace MusicalPlayer
             // PlayerModel.CurrentSongVolume = (float)(Config.LastVolume / 100);
 
             ThemeManager themeManager = ThemeManager.Instance;
-
+            MainWindowViewModel.Instance.PropertyChanged += Instance_PropertyChanged;
             MainWindowViewModel mainWindowViewModel = MainWindowViewModel.Instance;
-
+           
             this.DataContext = mainWindowViewModel;
         }
 
@@ -172,7 +174,11 @@ namespace MusicalPlayer
 
             Config.LanguageModel = model;
         }
-
+        private void Instance_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            this.DataContext = MainWindowViewModel.Instance;
+        }
+        /*
         /// <summary>
         /// Function is used for create timer
         /// </summary>
@@ -227,7 +233,11 @@ namespace MusicalPlayer
             // Update the song list in the interface
             UpdateSongList();
 
+            
+
         }
+
+        
 
         /// <summary>
         /// Event handler for mouse click on the program info button
@@ -449,7 +459,7 @@ namespace MusicalPlayer
             }
             catch { }
         }
-
+        
         /// <summary>
         /// Mouse click handler for the pause button
         /// </summary>
@@ -947,6 +957,6 @@ namespace MusicalPlayer
             //Updating playlists
             UpdatePlaylistList();
         }
-        
+        */
     }
 }

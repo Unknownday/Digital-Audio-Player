@@ -1,51 +1,96 @@
 ﻿using Musical_Player.Global;
 using NAudio.Wave;
+using System.ComponentModel;
 
 namespace Musical_Player.Models
 {
     /// <summary>
     /// Audio player model
     /// </summary>
-    public static class PlayerModel
+    public sealed class PlayerModel : INotifyPropertyChanged
     {
+        private static PlayerModel _instance;
+        private static AudioFileReader _currentSong;
+        private static string _currentSongName;
+        public static PlayerModel Instance {
+            get
+            {
+                if (_instance == null) 
+                { 
+                    _instance = new PlayerModel(); 
+                } 
+                return _instance;
+            }
+        }
+
+        private PlayerModel() { }
+
         /// <summary>
         /// Instance of the audio player from the NAudio library
         /// </summary>
-        public static WaveOutEvent AudioPlayer { get; set; } = new WaveOutEvent();
+        public WaveOutEvent AudioPlayer { get; set; } = new WaveOutEvent();
 
         /// <summary>
         /// Instance of the player from the NAudio library
         /// </summary>
-        public static AudioFileReader CurrentSong { get; set; } = null;
+        public AudioFileReader CurrentSong 
+        { 
+            get
+            {
+                return _currentSong;
+            }
+            set 
+            {
+                _currentSong = value;
+                OnPropertyChanged(nameof(CurrentSong));
+            } 
+        }
 
         /// <summary>
         /// Storage for the previous volume
         /// </summary>
-        public static float AudioValueBackup { get; set; } = 0.0F;
+        public float AudioValueBackup { get; set; } = 0.0F;
 
         /// <summary>
         /// Current volume
         /// </summary>
-        public static float CurrentSongVolume { get; set; } = 0.5F;
+        public float CurrentSongVolume { get; set; } = 0.5F;
 
         /// <summary>
         /// Name of the current song
         /// </summary>
-        public static string CurrentSongName { get; set; } = "No song selected";
+        public  string CurrentSongName
+        {
+            get
+            {
+                return _currentSongName;
+            }
+            set
+            {
+                _currentSongName = value;
+                OnPropertyChanged(nameof(CurrentSongName));
+            }
+        }
 
         /// <summary>
         /// Is the sound muted
         /// </summary>
-        public static bool IsMuted { get; set; } = false;
+        public  bool IsMuted { get; set; } = false;
 
         /// <summary>
         /// Is auto-switching of songs enabled
         /// </summary>
-        public static bool IsAutoSwitching { get; set; } = true;
+        public  bool IsAutoSwitching { get; set; } = true;
 
         /// <summary>
         /// Current player state
         /// </summary>
-        public static Enums.PlayerStates CurrentPlayerState { get; set; } = Enums.PlayerStates.Idle;
+        public  Enums.PlayerStates CurrentPlayerState { get; set; } = Enums.PlayerStates.Idle;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

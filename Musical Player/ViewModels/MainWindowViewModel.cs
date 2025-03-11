@@ -1,8 +1,12 @@
-﻿using Musical_Player.Global;
+﻿using Musical_Player.Contollers;
+using Musical_Player.Files_management;
+using Musical_Player.Global;
 using Musical_Player.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -16,15 +20,32 @@ namespace Musical_Player.ViewModels
     {
         #region Variables & Setters
 
+        /// <summary>
+        /// Event which is called when choosen propretry has changed
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private static MainWindowViewModel instance;
         private List<string> _songs { get; set; }
         private List<string> _playlists { get; set; }
+
+        #region Strings
+
         private string songNameText { get; set; }
         private string playlistsTagText { get; set; }
         private string songsTagText { get; set; }
         private string repeatText { get; set; }
         private string dragTipText { get; set; }
         private string shuffleBtnText { get; set; }
+
+        #endregion
+
+        private int _selectedSong;
+
+        private int _selectedPlaylist = 0;
+
+        #region Brushes
+
         public ImageSource MuteBtnBrush { get; set; }
         public ImageSource PlayBtnBrush { get; set; }
         public ImageSource PauseBtnBrush { get; set; }
@@ -39,31 +60,37 @@ namespace Musical_Player.ViewModels
         public ImageSource UpBtnBrush { get; set; }
         public ImageSource DownBtnBrush { get; set; }
         public ImageSource ReplayBtnBrush { get; set; }
-        public ICommand AddSongBtnCommand { get; }
-        public ICommand BackwardBtnCommand { get; }
-        public ICommand CreatePlaylistBtnCommand { get; }
-        public ICommand DeletePlaylistBtnCommand { get; }
-        public ICommand DeleteSongBtnCommand { get; }
-        public ICommand DurationBarValueChangedCommand { get; }
-        public ICommand ForwardBtnCommand { get; }
-        public ICommand InfoBtnCommand { get; }
-        public ICommand MoveDownBtnCommand { get; }
-        public ICommand MoveUpBtnCommand { get; }
-        public ICommand MuteBtnCommand { get; }
-        public ICommand PauseBtnCommand { get; }
-        public ICommand PlayBtnCommand { get; }
-        public ICommand PlaylistSelectionChangedCommand { get; }
-        public ICommand ReloadSongsCommand { get; }
-        public ICommand RemovePlaylistBtnCommand { get; }
-        public ICommand RemoveSongBtnCommand { get; }
-        public ICommand RenameBtnCommand { get; }
-        public ICommand ReplayBtnCommand { get; }
-        public ICommand SettingsBtnCommand { get; }
-        public ICommand ShuffleBtnCommand { get; }
-        public ICommand SongListSelectionChangedCommand { get; }
-        public ICommand VolumeBarValueChangedCommand { get; }
-        public ICommand VolumeBarDeltaCommand { get; }
-        public ICommand DurationBarDeltaCommand { get; }
+
+        #endregion
+
+        #region Commands
+
+        public ICommand AddSongBtnCommand { get; private set; }
+        public ICommand BackwardBtnCommand { get; private set; }
+        public ICommand CreatePlaylistBtnCommand { get; private set; }
+        public ICommand DeletePlaylistBtnCommand { get; private set; }
+        public ICommand DeleteSongBtnCommand { get; private set; }
+        public ICommand DurationBarValueChangedCommand { get; private set; }
+        public ICommand ForwardBtnCommand { get; private set; }
+        public ICommand InfoBtnCommand { get; private set; }
+        public ICommand MoveDownBtnCommand { get; private set; }
+        public ICommand MoveUpBtnCommand { get; private set; }
+        public ICommand MuteBtnCommand { get; private set; }
+        public ICommand PauseBtnCommand { get; private set; }
+        public ICommand PlayBtnCommand { get; private set; }
+        public ICommand ReloadSongsCommand { get; private set; }
+        public ICommand RenameBtnCommand { get; private set; }
+        public ICommand ReplayBtnCommand { get; private set; }
+        public ICommand SettingsBtnCommand { get; private set; }
+        public ICommand ShuffleBtnCommand { get; private set; }
+        public ICommand SongListSelectionChangedCommand { get; private set; }
+        public ICommand PlaylistsListSelectionChangedCommand { get; private set; }
+        public ICommand VolumeBarValueChangedCommand { get; private set; }
+        public ICommand VolumeBarDeltaCommand { get; private set; }
+        public ICommand DurationBarDeltaCommand { get; private set; }
+        
+        #endregion
+
         public SolidColorBrush ControllsColor { get; private set; }
 
 
@@ -87,65 +114,131 @@ namespace Musical_Player.ViewModels
         /// </summary>
         public MainWindowViewModel(LanguageModel model)
         {
-            var color = System.Drawing.Color.FromName(ThemeManager.Theme);
-            ControllsColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
+            InitializeColors();
+            InitializeIcons();
+            InitializeCommands();
+            InitializeTexts(model);
 
-            MuteBtnBrush = ThemeManager.Icons["mute"].ImageSource;
-            PlayBtnBrush = ThemeManager.Icons["play"].ImageSource;
-            PauseBtnBrush = ThemeManager.Icons["pause"].ImageSource;
-            SettingsBtnBrush = ThemeManager.Icons["settings"].ImageSource;
-            InformationBtnBrush = ThemeManager.Icons["info"].ImageSource;
-            RenameBtnBrush = ThemeManager.Icons["rename"].ImageSource;
-            ReloadBtnBrush = ThemeManager.Icons["repeat"].ImageSource;
-            RemovetnBrush = ThemeManager.Icons["delete"].ImageSource;
-            BackwardBtnBrush = ThemeManager.Icons["backward"].ImageSource;
-            ForwardBtnBrush = ThemeManager.Icons["forward"].ImageSource;
-            AddBtnBrush = ThemeManager.Icons["add"].ImageSource;
-            UpBtnBrush = ThemeManager.Icons["moveUp"].ImageSource;
-            DownBtnBrush = ThemeManager.Icons["moveDown"].ImageSource;
-            ReplayBtnBrush = ThemeManager.Icons["repeat"].ImageSource;
+            
 
-            AddSongBtnCommand = new RelayCommand(ExecuteAddSongBtn);
-            BackwardBtnCommand = new RelayCommand(ExecuteBackwardBtn);
-            CreatePlaylistBtnCommand = new RelayCommand(ExecuteCreatePlaylistBtn);
-            DeletePlaylistBtnCommand = new RelayCommand(ExecuteDeletePlaylistBtn);
-            DeleteSongBtnCommand = new RelayCommand(ExecuteDeleteSongBtn);
-            DurationBarValueChangedCommand = new RelayCommand(ExecuteDurationBarValueChanged);
-            ForwardBtnCommand = new RelayCommand(ExecuteForwardBtn);
-            InfoBtnCommand = new RelayCommand(ExecuteInfoBtn);
-            MoveDownBtnCommand = new RelayCommand(ExecuteMoveDownBtn);
-            MoveUpBtnCommand = new RelayCommand(ExecuteMoveUpBtn);
-            MuteBtnCommand = new RelayCommand(ExecuteMuteBtn);
-            PauseBtnCommand = new RelayCommand(ExecutePauseBtn);
-            PlayBtnCommand = new RelayCommand(ExecutePlayBtn);
-            PlaylistSelectionChangedCommand = new RelayCommand(ExecutePlaylistSelectionChanged);
-            ReloadSongsCommand = new RelayCommand(ExecuteReloadSongs);
-            RemovePlaylistBtnCommand = new RelayCommand(ExecuteRemovePlaylistBtn);
-            RemoveSongBtnCommand = new RelayCommand(ExecuteRemoveSongBtn);
-            RenameBtnCommand = new RelayCommand(ExecuteRenameBtn);
-            ReplayBtnCommand = new RelayCommand(ExecuteReplayBtn);
-            SettingsBtnCommand = new RelayCommand(ExecuteSettingsBtn);
-            ShuffleBtnCommand = new RelayCommand(ExecuteShuffleBtn);
-            SongListSelectionChangedCommand = new RelayCommand(ExecuteSongListSelectionChanged);
-            VolumeBarValueChangedCommand = new RelayCommand(ExecuteVolumeBarValueChanged);
-            VolumeBarDeltaCommand = new RelayCommand(ExecuteVolumeBarDelta);
-            DurationBarDeltaCommand = new RelayCommand(ExecuteDurationBarDelta);
-
-            this.ShuffleBtnText = model.ShuffleBtnText;
-            this.SongNameText = model.SongNameText;
-            this.PlaylistsTagText = model.PlaylistsTagText;
-            this.SongsTagText = model.SongsTagText;
-            this.RepeatText = model.RepeatIndicator;
-            this.DragTipText = model.DragTipText;
-
+            PlaylistController.Instance.LoadPlaylists();
+            Playlists = PlaylistController.Instance.GetPlaylistsHeaders();
            
             
+            PlaylistController.Instance.PropertyChanged += (object sender, PropertyChangedEventArgs e) => Songs = PlaylistController.Instance.CurrentPlaylist == null ? null : PlaylistController.Instance.CurrentPlaylist.Songs.Select(song => FileManager.NameFilter(song.Name)).ToList();
+            if (Playlists.Count > 0) PlaylistController.Instance.SelectPlaylist(Playlists[0]);
+        }
+
+
+        /// <summary>
+        /// Function that inintialize colors of foreground
+        /// </summary>
+        private void InitializeColors()
+        {
+            var color = System.Drawing.Color.FromName(ThemeManager.Theme);
+            ControllsColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
         }
 
         /// <summary>
-        /// Event which is called when choosen propretry has changed
+        /// Function that loads brushes for buttons background
         /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+        /// <exception cref="InvalidOperationException">In case if icons weren't loaded.</exception>
+        private void InitializeIcons()
+        {
+            if (ThemeManager.Icons == null)
+            {
+                throw new InvalidOperationException("ThemeManager is not initialized.");
+            }
+
+            var iconNames = new Dictionary<string, string>
+            {
+                { "MuteBtnBrush", "mute" },
+                { "PlayBtnBrush", "play" },
+                { "PauseBtnBrush", "pause" },
+                { "SettingsBtnBrush", "settings" },
+                { "InformationBtnBrush", "info" },
+                { "RenameBtnBrush", "rename" },
+                { "ReloadBtnBrush", "repeat" },
+                { "RemovetnBrush", "delete" },
+                { "BackwardBtnBrush", "backward" },
+                { "ForwardBtnBrush", "forward" },
+                { "AddBtnBrush", "add" },
+                { "UpBtnBrush", "moveUp" },
+                { "DownBtnBrush", "moveDown" },
+                { "ReplayBtnBrush", "repeat" }
+            };
+
+            foreach (var icon in iconNames)
+            {
+                var property = GetType().GetProperty(icon.Key);
+                if (property != null)
+                {
+                    property.SetValue(this, ThemeManager.Icons[icon.Value]?.ImageSource);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Binding function to the vars of type 'ICommand' to be binded in MainWindowView
+        /// </summary>
+        private void InitializeCommands()
+        {
+            var commandMethods = new Dictionary<string, Action>
+            {
+                { "AddSongBtnCommand", ExecuteAddSongBtn },
+                { "BackwardBtnCommand", ExecuteBackwardBtn },
+                { "CreatePlaylistBtnCommand", ExecuteCreatePlaylistBtn },
+                { "DeletePlaylistBtnCommand", ExecuteDeletePlaylistBtn },
+                { "DeleteSongBtnCommand", ExecuteDeleteSongBtn },
+                { "DurationBarValueChangedCommand", ExecuteDurationBarValueChanged },
+                { "ForwardBtnCommand", ExecuteForwardBtn },
+                { "InfoBtnCommand", ExecuteInfoBtn },
+                { "MoveDownBtnCommand", ExecuteMoveDownBtn },
+                { "MoveUpBtnCommand", ExecuteMoveUpBtn },
+                { "MuteBtnCommand", ExecuteMuteBtn },
+                { "PauseBtnCommand", ExecutePauseBtn },
+                { "PlayBtnCommand", ExecutePlayBtn },
+                { "ReloadSongsCommand", ExecuteReloadSongs },
+                { "RenameBtnCommand", ExecuteRenameBtn },
+                { "ReplayBtnCommand", ExecuteReplayBtn },
+                { "SettingsBtnCommand", ExecuteSettingsBtn },
+                { "ShuffleBtnCommand", ExecuteShuffleBtn },
+                { "VolumeBarValueChangedCommand", ExecuteVolumeBarValueChanged },
+                { "VolumeBarDeltaCommand", ExecuteVolumeBarDelta },
+                { "DurationBarDeltaCommand", ExecuteDurationBarDelta },
+                { "PlaylistsListSelectionChangedCommand", ExecutePlaylistsListSelectionChangedCommand },
+                { "SongListSelectionChangedCommand", ExecuteSongListSelectionChangedCommand}
+            };
+
+            foreach (var command in commandMethods)
+            {
+                var property = GetType().GetProperty(command.Key);
+                if (property != null)
+                {
+                    property.SetValue(this, new RelayCommand(command.Value));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Init texts of all the labels on the frontend
+        /// </summary>
+        /// <param name="model">Language model instance</param>
+        /// <exception cref="ArgumentNullException">In case if Language model is not provided</exception>
+        private void InitializeTexts(LanguageModel model)
+        {
+            if (model == null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+
+            ShuffleBtnText = model.ShuffleBtnText;
+            SongNameText = model.SongNameText;
+            PlaylistsTagText = model.PlaylistsTagText;
+            SongsTagText = model.SongsTagText;
+            RepeatText = model.RepeatIndicator;
+            DragTipText = model.DragTipText;
+        }
 
         /// <summary>
         /// Void to bind the propert which will call event on change 
@@ -284,6 +377,30 @@ namespace Musical_Player.ViewModels
             }
         }
 
+        
+        public int SelectedSong
+        {
+            get { return _selectedSong; }
+            set
+            {
+                if (_selectedSong != value)
+                {
+                    _selectedSong = value;
+                    OnPropertyChanged(nameof(SelectedSong));
+                }
+            }
+        }
+
+        public int SelectedPlaylist
+        {
+            get { return _selectedPlaylist; }
+            set
+            {
+                _selectedPlaylist = value;
+                OnPropertyChanged(nameof(SelectedPlaylist));
+            }
+        }
+
         #endregion
 
         #region Commands
@@ -291,126 +408,141 @@ namespace Musical_Player.ViewModels
         private void ExecuteAddSongBtn()
         {
 
+            PlaylistController.Instance.AddSongToPlaylist();
+
+            PlaylistController.Instance.LoadPlaylists();
+
+            Playlists = PlaylistController.Instance.GetPlaylistsHeaders();
+
+            PlaylistController.Instance.SelectPlaylist(Playlists[SelectedPlaylist]);
         }
 
         private void ExecuteBackwardBtn()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteCreatePlaylistBtn()
         {
+            PlaylistController.Instance.CreatePlaylist();
+
+            PlaylistController.Instance.LoadPlaylists();
+
+            Playlists = PlaylistController.Instance.GetPlaylistsHeaders();
 
         }
 
         private void ExecuteDeletePlaylistBtn()
         {
+            PlaylistController.Instance.DeletePlaylist();
 
+            PlaylistController.Instance.LoadPlaylists();
+
+            Playlists = PlaylistController.Instance.GetPlaylistsHeaders();
         }
 
         private void ExecuteDeleteSongBtn()
         {
+            PlayerController.StopRecording();
 
+            PlaylistController.Instance.DeleteSong(_selectedSong);
+
+            PlaylistController.Instance.LoadPlaylists();
+
+            Playlists = PlaylistController.Instance.GetPlaylistsHeaders();
+
+            PlaylistController.Instance.SelectPlaylist(Playlists[SelectedPlaylist]);
         }
 
         private void ExecuteDurationBarValueChanged()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteForwardBtn()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteInfoBtn()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteMoveDownBtn()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteMoveUpBtn()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteMuteBtn()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecutePauseBtn()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecutePlayBtn()
         {
-
+            throw new NotImplementedException();
         }
 
-        private void ExecutePlaylistSelectionChanged()
-        {
-
-        }
 
         private void ExecuteReloadSongs()
         {
-
-        }
-
-        private void ExecuteRemovePlaylistBtn()
-        {
-
-        }
-
-        private void ExecuteRemoveSongBtn()
-        {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteRenameBtn()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteReplayBtn()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteSettingsBtn()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteShuffleBtn()
         {
-
-        }
-
-        private void ExecuteSongListSelectionChanged()
-        {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteVolumeBarValueChanged()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteDurationBarDelta()
         {
-
+            throw new NotImplementedException();
         }
 
         private void ExecuteVolumeBarDelta()
         {
+            throw new NotImplementedException();
+        }
+        private void ExecuteSongListSelectionChangedCommand()
+        {
+           
+        }
 
+        private void ExecutePlaylistsListSelectionChangedCommand()
+        {
+            PlaylistController.Instance.SelectPlaylist(Playlists[SelectedPlaylist >= Playlists.Count ? 0 : _selectedPlaylist]);
+            
         }
 
         #endregion
@@ -440,10 +572,6 @@ namespace Musical_Player.ViewModels
 
             Playlists = playlists;
         }
-
-        
-
-        
     }
 
     public class RelayCommand : ICommand  

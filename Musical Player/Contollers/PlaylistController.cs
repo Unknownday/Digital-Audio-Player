@@ -4,6 +4,7 @@ using Musical_Player.Models;
 using Musical_Player.Views;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -13,21 +14,43 @@ using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace Musical_Player.Contollers
 {
-    public sealed class PlaylistController
+    public sealed class PlaylistController : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private static readonly Lazy<PlaylistController> _instance = new Lazy<PlaylistController>(() => new PlaylistController());
         public static PlaylistController Instance => _instance.Value;
 
         private PlaylistController() { }
 
-        public static PlaylistModel CurrentPlaylist { get; private set; } = new PlaylistModel();
+        private PlaylistModel _currentPlaylist;
+
+        public PlaylistModel CurrentPlaylist 
+        {  
+            get { return _currentPlaylist; }
+            set
+            {
+                _currentPlaylist = value;
+                OnPropertyChanged(nameof(CurrentPlaylist));
+            }
+        
+        }
+
+        /// <summary>
+        /// Void to bind the propert which will call event on change 
+        /// </summary>
+        /// <param name="propertyName"></param>
+        public void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         private static List<PlaylistModel> _playlists = new List<PlaylistModel>();
 
         /// <summary>
         /// Creates a new playlist with the specified user name
         /// </summary>
-        public static void CreatePlaylist()
+        public void CreatePlaylist()
         {
             // Open a dialog to get the playlist name from the user
             var nameDialog = new NameDialog();
@@ -54,7 +77,7 @@ namespace Musical_Player.Contollers
         /// <summary>
         /// Adds a new song to the playlist
         /// </summary>
-        public static void AddSongToPlaylist()
+        public void AddSongToPlaylist()
         {
             // Open a dialog to choose songs
             OpenFileDialog opnFileDlg = new OpenFileDialog();
@@ -95,7 +118,7 @@ namespace Musical_Player.Contollers
         /// Adds a song to the playlist from a file. Used for Drag&Drop funtion.
         /// </summary>
         /// <param name="path">Path to the song</param>
-        public static void AddSongToPlaylist(string path)
+        public void AddSongToPlaylist(string path)
         {
             // Check the path and add the song to the playlist
             if (!FileManager.ValidatePath(path)) return;
@@ -129,7 +152,7 @@ namespace Musical_Player.Contollers
         /// </summary>
         /// <param name="playlistName">Playlist name</param>
         /// <param name="songIndex">Song name</param>
-        public static void DeleteSong(int songIndex)
+        public void DeleteSong(int songIndex)
         {
             XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
 
@@ -157,7 +180,7 @@ namespace Musical_Player.Contollers
         /// <summary>
         /// Deletes a current playlist
         /// </summary>
-        public static void DeletePlaylist()
+        public void DeletePlaylist()
         {
             XDocument xDocument = XDocument.Load(Path.Combine(Config.DefaultPath, "Playlists.xml"));
 
@@ -196,7 +219,7 @@ namespace Musical_Player.Contollers
                     }).ToList()
                 };
 
-                playlists.Append(loadingPlaylist);
+                playlists.Add(loadingPlaylist);
             }
 
             foreach (var playlist in playlists)
@@ -221,7 +244,7 @@ namespace Musical_Player.Contollers
         /// </summary>
         /// <param name="songIndex">Song index in the list</param>
         /// <param name="direction">Move direction (down = 0, up = 1)</param>
-        public static void MoveSongIndex(int songIndex, Enums.MoveDirections direction)
+        public void MoveSongIndex(int songIndex, Enums.MoveDirections direction)
         {
             try
             {
@@ -267,13 +290,15 @@ namespace Musical_Player.Contollers
         /// Loading playlist with entered name
         /// </summary>
         /// <param name="header">Name of the playlist to be loaded</param>
-        public static void SelectPlaylist(string header) => CurrentPlaylist = _playlists.FirstOrDefault(playlist => playlist.Name == header);
+        public void SelectPlaylist(string header) => CurrentPlaylist = _playlists.FirstOrDefault(playlist => playlist.Name == header);
+
+        public List<string> GetPlaylistsHeaders() => _playlists.Select(playlist => playlist.Name).ToList();
 
         /// <summary>
         /// Renames the playlist
         /// </summary>
         /// <param name="playlistName"></param>
-        public static void RenamePlaylist(string playlistName)
+        public void RenamePlaylist(string playlistName)
         {
             // Open a dialog to get the new playlist name from the user
             var nameDialog = new NameDialog();

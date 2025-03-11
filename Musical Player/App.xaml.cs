@@ -40,7 +40,7 @@ namespace MusicalPlayer
                                 Config.LastPlaylist = Convert.ToInt32(value);
                                 break;
                             case "-auto_switching":
-                                PlayerModel.IsAutoSwitching = bool.Parse(value);
+                                PlayerModel.Instance.IsAutoSwitching = bool.Parse(value);
                                 break;
                             case "-theme":
                                 Config.Theme = value;

@@ -64,7 +64,7 @@ namespace Musical_Player.Config_management
                 key.SetValue("LastSong", songIndex.ToString());
                 key.SetValue("LastVolume", volume.ToString());
                 key.SetValue("Background", Config.BackgroundImagePath);
-                key.SetValue("AutoSwitch", PlayerModel.IsAutoSwitching.ToString());
+                key.SetValue("AutoSwitch", PlayerModel.Instance.IsAutoSwitching.ToString());
                 key.SetValue("Theme", Config.Theme);
                 key.SetValue("AppPath", AppDomain.CurrentDomain.BaseDirectory);
                 key.SetValue("Version", Config.VERSION);
